@@ -112,7 +112,7 @@ ggplot(WQ, aes(x = as.numeric(wavenumber), y = absorbance)) + geom_point() + xli
 
 # but in general it follows the line very well, even at the beginning
 #it looks sus as hell on the graph but when you zoom in it's still smooth. I'd put a cautious limit at 400.  
-ggplot(approx1, aes(x = x, y = y)) + geom_point() + xlim(250,1000) 
+ggplot(approxWQ, aes(x = x, y = y)) + geom_point() + xlim(250,1000) 
 ggplot(WQ, aes(x = as.numeric(wavenumber), y = absorbance)) + geom_point() + xlim(250,1000)
 
 ```
