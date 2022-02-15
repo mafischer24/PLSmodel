@@ -9,7 +9,7 @@ library(readr)
 
   #Remove sample names
   wetChemAbsorbance <- wetChemAbsorbance %>%
-    select(-1)
+    select(-1, -X1)
   dim(wetChemAbsorbance) ## 28 3698
 
 #Code for PLS model----
