@@ -29,6 +29,9 @@ LSA2_35 <- reformattedData$`LSA2-35.0` %>%
 NANB3A2_10_5 <- reformattedData$`NANB3A1-131.5.0` %>%
   pivot_longer(everything(), names_to = "wavenumber", values_to = "absorbance")
 
+NANDB_4 <- reformattedData$`NAN-DB-4.0` %>%
+  pivot_longer(everything(), names_to = "wavenumber", values_to = "absorbance")
+
 SS <- reformattedData$`SS.0` %>%
   pivot_longer(everything(), names_to = "wavenumber", values_to = "absorbance")
 
@@ -71,6 +74,13 @@ ggplot(NANB3A2_10_5, aes(x = as.numeric(wavenumber), y = absorbance)) + geom_poi
 ggplot(NANB3A2_10_5, aes(x = as.numeric(wavenumber), y = absorbance)) + geom_point() + xlim(4500,8000) + ylim(-.02,0.02)
 ```
 
+
+```{r NAN-DB-4.0}
+ggplot(NANDB_4, aes(x = as.numeric(wavenumber), y = absorbance)) + geom_point()
+
+ggplot(NANDB_4, aes(x = as.numeric(wavenumber), y = absorbance)) + geom_point() + xlim(4500,8000) + ylim(-.02,0.02)
+```
+
 ```{r SS}
 # I'm beginning to think I get why the model is as rough as it is...
 ggplot(SS, aes(x = as.numeric(wavenumber), y = absorbance)) + geom_point()
@@ -80,6 +90,53 @@ ggplot(SS, aes(x = as.numeric(wavenumber), y = absorbance)) + geom_point() + xli
 ```
 
 ```{r WQ}
+# yikes
 ggplot(WQ, aes(x = as.numeric(wavenumber), y = absorbance)) + geom_point()
 ```
 
+
+## Interpolation Testing - Wet Quartz
+
+```{r interp-wq}
+WQ <- WQ %>%
+  mutate(wavenumber = as.numeric(wavenumber))
+
+approxWQ <- approx(WQ, n = 10000) %>%
+  as.data.frame(.)
+
+#I'd say that I trust the approximation up until wavenumber 5000, at which point the frame should be cropped.
+
+ggplot(approxWQ, aes(x = x, y = y)) + geom_point() + xlim(4500,5500) + ylim(-.025,.025)
+ggplot(WQ, aes(x = as.numeric(wavenumber), y = absorbance)) + geom_point() + xlim(4500,5500) + ylim(-.025,.025)
+
+
+# but in general it follows the line very well, even at the beginning
+#it looks sus as hell on the graph but when you zoom in it's still smooth. I'd put a cautious limit at 400.  
+ggplot(approx1, aes(x = x, y = y)) + geom_point() + xlim(250,1000) 
+ggplot(WQ, aes(x = as.numeric(wavenumber), y = absorbance)) + geom_point() + xlim(250,1000)
+
+```
+
+```{r interp-nandb}
+NANDB_4 <- NANDB_4 %>%
+  mutate(wavenumber = as.numeric(wavenumber))
+
+approxDB <- approx(NANDB_4, n = 10000) %>%
+  as.data.frame(.)
+
+ggplot(approxDB, aes(x = x, y = y)) + geom_point() 
+ggplot(NANDB_4, aes(x = wavenumber, y = absorbance)) + geom_point() 
+
+#Again, I'd be comfortable with this up to the 5000 point. 
+ggplot(approxDB, aes(x = x, y = y)) + geom_point() + xlim(4500,5500) + ylim(-.025,.025)
+ggplot(NANDB_4, aes(x = wavenumber, y = absorbance)) + geom_point() + xlim(4500,5500) + ylim(-.025,.025)
+
+```
+
+```{r approxfun_testing}
+# Approxfun defines a function interpolating the data
+# that can then be called on another vector of wavenumbers to return the approximations
+f1 <- approxfun(NANDB_4)
+test <- c(1000,2000,3000,4000,5000,6000)
+f1(test)
+```
