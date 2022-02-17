@@ -2,16 +2,16 @@
 library(tidyverse)
 
 ## read in txt files automatically----
-fname <- list.files("Samples/greenlandSamples", full.names = T) 
+fname <- list.files("Samples/greenlandSamples", full.names = T)
 ###Dimensions = 1:28 (Greenland) ###1:100 (Alaska)
 
 ###Components of Function 1-----
-##List with all text files (Two methods depending on separator) 
-#filelist <- lapply(fname, read.delim, header = F) 
+##List with all text files (Two methods depending on separator)
+#filelist <- lapply(fname, read.delim, header = F)
 #add , for alaska samples
-filelist <- lapply(fname, read.table, sep="") 
+filelist <- lapply(fname, read.table, sep="")
 ### Dimensions = 28 [1:3697] (Greenland) 100 [1:1882] (Alaska)
- 
+
 ## Adding sample IDs (reference to lake core)
 names(filelist) <- gsub(".*/(.*)\\..*", "\\1", fname)
 
@@ -53,7 +53,7 @@ lapply(reformattedData, ncol) %>% unlist() %>% summary()
 #lapply(reformattedData, ncol) %>% unlist() %>% summary()
 #which are not 1882
 #which(unlist(lapply(reformattedData, ncol)) != 1882)
-###AW-34.5 (8_31_16).0  AW-7.5 (8_31_16).0   AW-73 (8_31_16).0 
+###AW-34.5 (8_31_16).0  AW-7.5 (8_31_16).0   AW-73 (8_31_16).0
 
 ## adds column for each row to remind us which file it is
 absorbance_df$dataset <- names(filelist)
@@ -68,13 +68,13 @@ write.csv(wavenumber, "csvFiles/wavenumber.csv")
 write.csv(absorbance, "csvFiles/absorbance.csv")
 
 ###Components of Function 4-----
-#Read in calibration csv with same number of samples as our transformedData 
+#Read in calibration csv with same number of samples as our transformedData
 wet_chem_data <- read_csv("csvFiles/wet-chem-data.csv") ###28
 
 #Read in absorbance values for each sample
-absorbance <- read_csv("csvFiles/absorbance.csv") ###28:3698
+absorbance <- read_csv("csvFiles/absorbance.csv") ###28:3698  #Missing column names filled in: 'X1'
 
-#Rename wet_chem_data columns 
+#Rename wet_chem_data columns
 names(wet_chem_data)[1] <- "dataset"
 names(wet_chem_data)[2] <- "BSiPercent"
 
@@ -82,11 +82,11 @@ names(wet_chem_data)[2] <- "BSiPercent"
 wetChemAbsorbance <- full_join(wet_chem_data, absorbance, by = "dataset")
 
 ## this replaces .0 with a space, the backslashes escape the special character . in regular expressions
-wetChemAbsorbance$dataset = gsub("\\.0","",wetChemAbsorbance$dataset) 
+wetChemAbsorbance$dataset = gsub("\\.0","",wetChemAbsorbance$dataset)
 
 ## this replaces cm with a space, the backslashes escape the special character . in regular expressions
 wetChemAbsorbance$dataset = gsub("cm","",wetChemAbsorbance$dataset)
 
-#Write csv file 
+#Write csv file
 write.csv(wetChemAbsorbance,"csvFiles/wetChemAbsorbance.csv",row.names=F)
 
