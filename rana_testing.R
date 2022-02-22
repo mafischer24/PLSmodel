@@ -36,7 +36,7 @@ plot(plsModel, "loadings", comps = 2:8, legendpos = "topleft", xlab = "nm")
 abline(h = 0)
 
 
-
+## a loop to generate residual graphs + means for each component in the model
   for (i in 2:10){ #only after running all of viviine code!
     plsModel <- plsr(BSiPercent~., ncomp = i, data=wetChemAbsorbance, validation = "CV", segments = 10)
 
