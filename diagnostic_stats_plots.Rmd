@@ -1,0 +1,144 @@
+---
+title: "model assessment"
+author: "Rana Gahwagy"
+date: "2/21/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(Metrics)
+library(pls)
+```
+
+## build the model
+
+```{r}
+
+test_model <- plsr(BSiPercent~., ncomp = 10, data=wetChemAbsorbance, validation = "CV", segments = 10)
+```
+
+# decide on number of components: 
+## check Root Mean Square Error of Prediction (RMSEP) plot
+produces number of plot for each dependent variable to give the error for each number of plot
+```{r}
+plot(RMSEP(test_model))
+RMSEP(test_model)
+```
+## how do coeffecients change by number of components?
+Plot to see how the regression coefficients are different based on the number of components retained. On the x-axis is each varuable which corresponds to each wave number. The more vatiance there is the more complex it is.  
+
+```{r}
+#choose a range for the number of components (ncomp) based or just one
+plot(test_model, plottype = "coef", ncomp=c(2:6), legendpos = "topright")
+```
+## grid search 
+a tool to search for the best predictive performance that can be used to tune the 'ncomp' hyperparameter. This uses a training, testing and validation sets, so it redefines the model 
+
+```{r}
+#split the data to training (70%), validation (10%), testing (20%)
+spec = c(train = .7, test = .2, validate = .1)
+
+g = sample(cut(
+  seq(nrow(wetChemAbsorbance)), 
+  nrow(wetChemAbsorbance)*cumsum(c(0,spec)),
+  labels = names(spec)
+))
+
+res = split(wetChemAbsorbance, g)
+
+train <- res$train #70%
+val <- res$validate # 10%
+test <- res$test#20%
+
+# Split the column names in X and Y
+X_colnames <- colnames(wetChemAbsorbance)[4:3700] #BSi absorbance at each wavenumber
+Y_colnames <- colnames(wetChemAbsorbance)[2] # BSi percentage  
+
+# Split each train, val, test into two matrices
+X_train_matrix <- as.matrix(train[X_colnames])
+Y_train_matrix <- as.matrix(train[Y_colnames])
+
+X_val_matrix <- as.matrix(val[X_colnames])
+Y_val_matrix <- as.matrix(val[Y_colnames])
+
+X_test_matrix <- as.matrix(test[X_colnames])
+Y_test_matrix <- as.matrix(test[Y_colnames])
+
+# Loop through possible values for n_comp to optimize R2 on validation data
+best_r2 <- 0
+best_ncomp <- 0
+for (n_comp in c(1:10)){ # you can change number of components you want to test here
+  ## redefine the model: 
+  model <- plsr(Y_train_matrix ~ X_train_matrix , ncomp=n_comp, validation='CV' ) #validation method changes r2
+  predictions <- as.matrix(data.frame(predict(model, ncomp=n_comp, X_val_matrix)))
+  mean_r2 <- mean(diag(cor(predictions, Y_val_matrix))**2)
+
+  if (mean_r2 > best_r2){
+    best_r2 <- mean_r2
+    best_ncomp <- n_comp
+  }
+}
+
+#prints best component number based on R^2
+print(best_ncomp)
+print(best_r2)
+```
+or using algorthim from the pls package
+```{r}
+selectNcomp(test_model, method = "onesigma", plot = TRUE)
+```
+
+## check for test score using the best number of components
+```{r}
+# Predict on test for having a final R2 estimate
+best_model <- plsr(Y_train_matrix ~ X_train_matrix, ncomp=best_ncomp,  validation='LOO')
+test_predictions <- as.matrix(data.frame(predict(best_model, ncomp=best_ncomp, X_test_matrix))) 
+mean_r2 <- mean(diag(cor(test_predictions, Y_test_matrix))**2)
+# print predictive average R2 score:
+print(mean_r2)
+```
+
+## % variance explained
+```{r}
+explvar(test_model)
+explvar(best_model)
+var <- as.vector(explvar(test_model))
+ncomps <- 1:length(var)
+plot(x=ncomps, y=var, type = "b")
+
+```
+## loading plot
+The Loading Plot is a plot of the relationship between original variables and subspace dimensions. It is used for interpreting relationships among variables. Highly correlated variables have similar weights in the loading vectors and appear close together in the loading plots of all dimensions.
+```{r}
+plot(test_model, "loadings", comps = 2:7, legendpos = "bottomright", xlab = "nm")
+abline(h = 0)
+```
+
+## pair wise score plot 
+used to look for patterns, groups or outliers in the data. look for clustering, outliers,or time-based patterns. the percentages are the relative amount of X variance explained by each component.
+```{r}
+plot(test_model, plottype = "scores", comps = 2:7)
+plot(test_model, plottype = "scores", comps = 3)
+```
+## Cross-validated predictions
+```{r}
+plot(test_model, ncomp = 2:7, asp = 1, line = TRUE)
+```
+
+## R^2
+
+```{r}
+validationplot(test_model, val.type="R2")
+```
+
+## correlation plot 
+```{r}
+corrplot(test_model, comps = 2:4 )
+```
+
+

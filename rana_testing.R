@@ -1,6 +1,6 @@
 library(tidyverse)
 library(Metrics)
-
+library(pls)
 #read in greenland samples
 fname <- list.files("Samples/greenlandSamples", full.names = T)
 filelist <- lapply(fname, read.table, sep="")
@@ -36,9 +36,9 @@ plot(plsModel, "loadings", comps = 2:8, legendpos = "topleft", xlab = "nm")
 abline(h = 0)
 
 
-
-  for (i in 2:10){
-    plsModel <- plsr(BSiPercent~., ncomp = i, data=wetChemAbsorbance, validation = "CV", segments = 5)
+## a loop to generate residual graphs + means for each component in the model
+  for (i in 2:10){ #only after running all of viviine code!
+    plsModel <- plsr(BSiPercent~., ncomp = i, data=wetChemAbsorbance, validation = "CV", segments = 10)
 
     predicted_bsi <- as.data.frame(plsModel$fitted.values)
     #select model with 3 components
@@ -60,6 +60,7 @@ abline(h = 0)
     Difference <- round_df(Difference, 2)
     #Calculate absolute values, mean and median of residual errors ----
     Abs <- (abs(Difference$Difference))
+    print(paste("for comp ", i, " the average residual is ", mean(Abs)))
 
     print(Difference %>%
       mutate(highlight_flag = ifelse(Difference >= '0', T, F)) %>%
