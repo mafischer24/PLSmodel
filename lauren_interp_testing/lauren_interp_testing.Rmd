@@ -140,3 +140,32 @@ f1 <- approxfun(NANDB_4)
 test <- c(1000,2000,3000,4000,5000,6000)
 f1(test)
 ```
+
+```{r alaska_interpolation_testing}
+AK_1 <- read_csv("Samples/alaska_csv/AS-01\ (8_24_16).0.csv")
+GL_1 <- read_csv("Samples/greenland_csv/FISK-10.0.csv")
+
+ak_min <- min(AK_1$wavenumber)
+ak_max <- max(AK_1$wavenumber)
+gl_min <- min(GL_1$wavenumber)
+gl_max <- max(GL_1$wavenumber)
+
+# Cutting Greenland data down to >4k, round to 1 decimal point
+GL_filtered <- GL_1 %>%
+  filter(wavenumber <= 3996.4) %>%
+  mutate(wavenumber = signif(wavenumber,digits = 5))
+# Checking that each wavenumber is unique
+length(unique(GL_filtered$wavenumber)) == nrow(GL_filtered)
+
+# Rounding Alaska to 1 decimal
+AK_filtered <- AK_1%>%
+  mutate(wavenumber = signif(wavenumber, digits = 5))
+# Checking that each wavenumber is unique
+length(unique(AK_filtered$wavenumber)) == nrow(AK_filtered)
+
+
+# Ok, that's a problem. Interpolation it is. Alas for the easy route. 
+wavenum_test <- GL_filtered %>%
+  full_join(AK_filtered, by = 'wavenumber')
+```
+
