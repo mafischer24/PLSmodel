@@ -169,3 +169,78 @@ wavenum_test <- GL_filtered %>%
   full_join(AK_filtered, by = 'wavenumber')
 ```
 
+
+```{r greenland_err_testing}
+#reading in the greenland data, with one change for the csv conversion
+fname <- list.files("Samples/greenland_csv", full.names = T)
+filelist <- lapply(fname, read_csv)
+names(filelist) <- gsub(".*/(.*)\\..*", "\\1", fname)
+
+# Removing the redundant index variable
+filelist <- lapply(filelist, function(x){select(x, wavenumber, absorbance)})
+# Reformatting the data...
+reformattedData <- lapply(filelist, function(x){pivot_wider(x, names_from = wavenumber, values_from = absorbance)})
+# Adding the names back
+wavenumber_matrix <- lapply(reformattedData, names)
+# Rounding all to two digits past the decimal 
+#wavenumber_matrix_trunc <- lapply(wavenumber_matrix, function(x){round(as.numeric(x), digits = 2)})
+wavenumber_df <- as.data.frame(wavenumber_matrix)
+
+#Calculating max and min values for each wavenumber observation across Greenland
+wavenumber_df$max <- apply(wavenumber_df, 1, function(x){max(x)})
+wavenumber_df$min <- apply(wavenumber_df, 1, function(x){min(x)})
+#Calculating the largest difference in wavenumber for each observation
+wavenumber_df <- wavenumber_df %>%
+  mutate(noise_test = as.numeric(max) - as.numeric(min))
+
+#The biggest error we have is 0.0293, which is not bad. This is across the entirety of greenland. 
+max_err <- max(wavenumber_df$noise_test)
+```
+
+```{r alaska_err_testing}
+#reading in the Alaska data, with one change for the csv conversion
+a_fname <- list.files("Samples/alaska_csv", full.names = T)
+a_filelist <- lapply(a_fname, read_csv)
+
+#Cleaning up the names. If one of you knows how to do this in one regex and not two, go ahead. I can't.
+# Removing the filepath
+names(a_filelist) <- gsub("Samples/alaska_csv/", "", a_fname)
+# Removing the space, date, and csv ending
+names(a_filelist) <- gsub(" (.*).0.csv","", names(a_filelist))
+
+# Removing the redundant index variable
+a_filelist <- lapply(a_filelist, function(x){select(x, wavenumber, absorbance)})
+# Reformatting the data...
+ak_reformattedData <- lapply(a_filelist, function(x){pivot_wider(x, names_from = wavenumber, values_from = absorbance)})
+#Getting only the wavenumber
+wavenumber_matrix_ak <- lapply(ak_reformattedData, names)
+# Rounding all to two digits past the decimal - deprecated
+#wavenumber_matrix_trunc <- lapply(wavenumber_matrix_ak, function(x){round(as.numeric(x), digits = 2)})
+wavenumber_df_ak <- as.data.frame(wavenumber_matrix_ak)
+
+#Calculating max and min values for each wavenumber observation across Alaska
+wavenumber_df_ak$max <- apply(wavenumber_df_ak, 1, function(x){max(x)})
+wavenumber_df_ak$min <- apply(wavenumber_df_ak, 1, function(x){min(x)})
+#Calculating the largest difference in wavenumber for each observation
+wavenumber_df_ak <- wavenumber_df_ak %>%
+  mutate(noise_test = as.numeric(max) - as.numeric(min))
+
+#The alaska samples have no noise whatsoever in the wavenumber reading. That's only a greenland problem. 
+#Honestly, this means we should probably interpolate Greenland to match Alaska and not the other way around. 
+max_err_alaska <- max(wavenumber_df_ak$noise_test)
+
+```
+
+```{r Basic_interpolation}
+#Important: this needs to be loaded in before you use this function
+ak_wavenumbers <- as.numeric(wavenumber_df_ak$AS.01)
+
+interpolate <- function(wavenumber, absorbance) {
+  tuple <- approx(as.numeric(wavenumber), as.numeric(absorbance), xout = ak_wavenumbers)
+  df <- as.data.frame(tuple)
+  df <- df %>%
+    rename(wavenumber = x, absorbance = y)
+}
+
+interpolated_greenland <- lapply(filelist, function(x){interpolate(x$wavenumber, x$absorbance)})
+```
