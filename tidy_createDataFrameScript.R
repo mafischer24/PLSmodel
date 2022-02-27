@@ -49,12 +49,20 @@ read_files <- function(x) {
 }
 
 
+<<<<<<< HEAD
 create_wavenumber_df <- function(x) {
+=======
+create_df <- function(x) {
+>>>>>>> 6f765439662dbab08d9e1782d7b3e39af57eaf6c
   # Make the columns names the wavenumbers and the values the absorbance values
   reformattedData <- map(x, function(x) {
     pivot_wider(x, names_from = wavenumber, values_from = absorbance)
   })
+<<<<<<< HEAD
   # create a matrix of the wavenumbers from each sample
+=======
+  #
+>>>>>>> 6f765439662dbab08d9e1782d7b3e39af57eaf6c
   wavenumber_matrix <- map(reformattedData, names)
 
   # Convert matrix into data frame where each sample is its own row of wavenumber values
@@ -71,6 +79,17 @@ dropNames <- function(data) {
   return(data)
 }
 
+<<<<<<< HEAD
+=======
+# _____________________
+
+# Rename column header from "wavenumbers" to "Vi" (FUNCTION #3)
+dropNames <- function(data) {
+  names(data) <- paste("V", 1:ncol(data), sep = "")
+  return(data)
+}
+
+>>>>>>> 6f765439662dbab08d9e1782d7b3e39af57eaf6c
 # creating new list of df where there aren't any wavenumbers...only absorbance values [1:3697]
 absorbance_matrix <- lapply(reformattedData, dropNames)
 
