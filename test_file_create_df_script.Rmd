@@ -1,0 +1,21 @@
+---
+title: "test_file_create_df_script"
+author: "Grace Hartley"
+date: "2/27/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+greenland <- read_txt_files("Samples/greenland_csv")
+alaska <- read_txt_files("Samples/alaska_csv")
+```
+
+```{r}
+greenland_df <- create_df(greenland)
+alaska_df <- create_df(alaska)
+```
+
