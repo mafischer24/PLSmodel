@@ -49,7 +49,7 @@ read_files <- function(x) {
 }
 
 
-create_df <- function(x) {
+create_wavenumber_df <- function(x) {
   # Make the columns names the wavenumbers and the values the absorbance values
   reformattedData <- map(x, function(x) {
     pivot_wider(x, names_from = wavenumber, values_from = absorbance)
