@@ -1,0 +1,26 @@
+---
+title: "test_file_create_df_script"
+author: "Grace Hartley"
+date: "2/27/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+greenland <- read_files("Samples/greenland_csv")
+greenland_wavenumber_df <- create_wavenumber_df(greenland)
+greenland_absorbance_df <- create_absorbance_df(greenland)
+
+write.csv(greenland_wavenumber_df, "csvFiles/wavenumber.csv")
+write.csv(greenland_absorbance_df, "csvFiles/absorbance.csv")
+```
+
+```{r}
+alaska <- read_files("Samples/alaska_csv")
+alaska_wavenumber_df <- create_wavenumber_df(alaska)
+alaska_absorbance_df <- create_absorbance_df(alaska)
+```
+
