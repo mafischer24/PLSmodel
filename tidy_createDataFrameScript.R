@@ -62,12 +62,38 @@ create_wavenumber_df <- function(x) {
   wavenumber_df <- as.data.frame(do.call("rbind", wavenumber_matrix))
   # After this Vivienne didn't "trust" it to store the names so she added them as a column..
   # Something we should worry about? It's because detaching to create absorbance matrix...
+
+
+}
+
+create_absorbance_df <- function(x){
+  # I think there's a better way to do this part but cannot right now
+
+  reformattedData <- map(x, function(x) {
+    pivot_wider(x, names_from = wavenumber, values_from = absorbance)
+  })
+
+  # This is Vivienne's function dropNames
+
+  # Rename column header from "wavenumbers" to "Vi" (FUNCTION #3)
+  dropNames <- function(data) {
+    names(data) <- paste("V", 1:ncol(data), sep = "")
+    return(data)
+  }
+
+  # creating new list of df where there aren't any wavenumbers...only absorbance values [1:3697]
+  absorbance_matrix <- map(reformattedData, dropNames)
+  absorbance_df <- as.data.frame(do.call("rbind", absorbance_matrix))
+
 }
 
 
+write.csv(wavenumber_df, "csvFiles/wavenumber.csv")
+write.csv(absorbance_df, "csvFiles/absorbance.csv")
+
 # _____________________
 
-# Rename column header from "wavenumbers" to "Vi" (FUNCTION #3)
+
 dropNames <- function(data) {
   names(data) <- paste("V", 1:ncol(data), sep = "")
   return(data)
