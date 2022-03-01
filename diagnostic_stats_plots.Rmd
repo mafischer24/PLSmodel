@@ -133,7 +133,7 @@ plot(test_model, ncomp = 2:7, asp = 1, line = TRUE)
 ## R^2
 
 ```{r}
-validationplot(test_model, val.type="R2")
+validationplot(test_model, val.type="R2")  ## check vivian's r^2 +  understad where it is coming from
 ```
 
 ## correlation plot 

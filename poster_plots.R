@@ -3,7 +3,7 @@ library(Metrics)
 library(pls)
 
 #quartz vs diatoms vs lake sample spectra ( what kind of data are we looking at? )
-# what is ss?
+# what is ss?  sea sand
 SS <- reformattedData$`SS.0` %>%
   pivot_longer(everything(), names_to = "wavenumber", values_to = "absorbance")
 
