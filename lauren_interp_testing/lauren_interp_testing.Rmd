@@ -232,15 +232,69 @@ max_err_alaska <- max(wavenumber_df_ak$noise_test)
 ```
 
 ```{r Basic_interpolation}
-#Important: this needs to be loaded in before you use this function
+# Our provisional out vector
 ak_wavenumbers <- as.numeric(wavenumber_df_ak$AS.01)
 
-interpolate <- function(wavenumber, absorbance) {
-  tuple <- approx(as.numeric(wavenumber), as.numeric(absorbance), xout = ak_wavenumbers)
+# Wavenumber: the wavenumber vector alone
+# Absorbance: the absorbance vector alone
+# Out_vec: the wavenumber vector to be interpolated onto - in this case using the Alaska Wavenumbers
+interpolate <- function(wavenumber, absorbance, out_vec) {
+  
+  # The meat of the function: returns both the interpolated absorbance vector and the wavenumber vec.
+  tuple <- approx(as.numeric(wavenumber), as.numeric(absorbance), xout = out_vec)
+  
+  # Binds the two vectors back into a data frame
   df <- as.data.frame(tuple)
+  
+  # Giving the data frame useful names before passing it back
   df <- df %>%
     rename(wavenumber = x, absorbance = y)
 }
 
-interpolated_greenland <- lapply(filelist, function(x){interpolate(x$wavenumber, x$absorbance)})
+# My hacky way of turning this back into a dataframe I can use with ggplot 
+# and the last row turns it into model format
+
+# Running the interpolation function on each individual vector in the file frame. 
+# Note: Interpolation does not care if it's a char vec or not, I used as.numeric() everywhere that matters.
+interpolated_greenland <- lapply(filelist, function(x){interpolate(x$wavenumber, x$absorbance, ak_wavenumbers)})
+# Selecting only the absorbance vector from each list; interpolation returns a df of both abs and wavenumber
+interp_gl <- lapply(interpolated_greenland, function(x){select(x,absorbance)})
+# Binding it all into a data frame columnwise (each column one sample, rows being absorbance values)
+interp_df <- as.data.frame(do.call(cbind, interp_gl))   
+# Adding the column names back in, as they got lost. Did check, this doesn't misalign any of the names.
+names(interp_df) <- names(filelist)
+# Adding the wavenumbers back in as their own column
+interp_df$wavenumber <- ak_wavenumbers
+
+# This one's a bit messy, so I'll be better about explaining. 
+interp_df_wider <- interp_df %>% 
+  select(wavenumber, everything()) %>% #Putting the wavenumber column at the very front of the data frame for indexing
+  t %>% as.data.frame() %>% # t transposes the frame, turning it on its side. More elegantly than I could get with pivot
+  janitor::row_to_names(1) # Then this takes the wavenumber column, now row, and sets it as the column names instead.
+# The end result is a data frame with row names being samples, column names being wavenumbers, and all observations being absorb values.
+# All you'd need to do from here is add the BSi readings in and possibly move rownames to a col
+```
+
+```{r interpolation-validation}
+# Checking the interpolated points vs the original points: They're at the same resolution, so there is no visible change
+# this is good. this is what we want.
+# The main visible change is the limits, where alaska cuts off one point earlier than greenland on the left, and at 3996 on the right
+# This should not be a problem as long as we set limits to (500,3996)
+ggplot(interp_df, aes(x = as.numeric(wavenumber), y = `FISK-10.0`)) + geom_point() + 
+  geom_point(data = fisk_10, aes(x = as.numeric(wavenumber), y= as.numeric(absorbance)), color = "red", size = 1)
+
+# As mentioned before in this document, things get screwy lower than 500. 
+ggplot(interp_df, aes(x = as.numeric(wavenumber), y = `LSA2-35.0`)) + geom_point() + 
+  geom_point(data = LSA2_35, aes(x = as.numeric(wavenumber), y= as.numeric(absorbance)), color = "red", size = 1) + xlim(350,1000)
+
+# Wet Quartz, having earned the earlier 'yikes' comment - lower bound
+# Still agree with the cutoff of 500, and this makes it clear that we're not making new data here: we're just syncing up the data we have
+ggplot(interp_df, aes(x = as.numeric(wavenumber), y = `WQ.0`)) + geom_point() + 
+  geom_point(data = WQ, aes(x = as.numeric(wavenumber), y= as.numeric(absorbance)), color = "red", size = 1) + 
+  xlim(360,1000)
+
+# Gets a bit iffy while approaching the 3996 limit, but not worryingly so. 
+ggplot(interp_df, aes(x = as.numeric(wavenumber), y = `WQ.0`)) + geom_point() + 
+  geom_point(data = WQ, aes(x = as.numeric(wavenumber), y= as.numeric(absorbance)), color = "red", size = 1) + 
+  xlim(3600,4100) + ylim(-0.02,0.0)
 ```
