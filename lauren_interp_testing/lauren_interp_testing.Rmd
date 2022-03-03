@@ -142,8 +142,8 @@ f1(test)
 ```
 
 ```{r alaska_interpolation_testing}
-AK_1 <- read_csv("Samples/alaska_csv/AS-01\ (8_24_16).0.csv")
-GL_1 <- read_csv("Samples/greenland_csv/FISK-10.0.csv")
+AK_1 <- read_csv("~/Desktop/PLSmodel/Samples/alaska_csv/AS-01\ (8_24_16).0.csv")
+GL_1 <- read_csv("~/Desktop/PLSmodel/Samples/greenland_csv/FISK-10.0.csv")
 
 ak_min <- min(AK_1$wavenumber)
 ak_max <- max(AK_1$wavenumber)
