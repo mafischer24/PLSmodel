@@ -25,12 +25,12 @@ library(janitor)
 #make a wave number matrix + absorbance matrix ##not complete so disregard for now
 #for(i in 1:100){
 
-  alaska_filelist[[i]] %>%
-    select(-1)
+#  alaska_filelist[[i]] %>%
+#    select(-1)
 
   #pivot wider
   # add each row to respective matrix
-}
+#}
 
 ## add calibration data for alaska
 alaska_wet_chem <- read_csv("Maxwell-Alaska Samples  - Final Top 100.csv") %>%
