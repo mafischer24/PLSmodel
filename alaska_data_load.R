@@ -1,6 +1,7 @@
 library(tidyverse)
 library(janitor)
 
+#alternative to read_files() not fully developed yet
 #upload alaska files
 #afname <- list.files("Samples/alaska_csv", full.names = T)
 #alaska_filelist <- lapply(afname, read.table, sep=",", header=TRUE)
@@ -26,7 +27,11 @@ library(janitor)
 #for(i in 1:100){
 
 #  alaska_filelist[[i]] %>%
+<<<<<<< HEAD
 #    select(-1)
+=======
+ #   select(-1)
+>>>>>>> ae39f920a29b2a4be853672bbd2f304fd6ff4b49
 
   #pivot wider
   # add each row to respective matrix
@@ -40,80 +45,15 @@ alaska_wet_chem <- read_csv("Maxwell-Alaska Samples  - Final Top 100.csv") %>%
 names(alaska_wet_chem)[1] <- "dataset"
 names(alaska_wet_chem)[2] <- "BSiPercent"
 
-# Read in absorbance values for each sample
-library(data.table)
-setDT(alaska_absorbance_df, keep.rownames = "dataset")[]
+write.csv(alaska_wet_chem, "csvFiles/AlaskaWetChem.csv", row.names = F)
 
-# bind calibration data to transformed data
-AlaskaWetChemAbsorbance <- full_join(alaska_wet_chem, alaska_absorbance_df, by = "dataset")
+alaska_absorbance_df <- create_absorbance_df(alaska)
 
-## this replaces .0 with a space, the backslashes escape the special character . in regular expressions
-AlaskaWetChemAbsorbance$dataset <- gsub("\\.0", "", AlaskaWetChemAbsorbance$dataset)
-
-## this replaces cm with a space, the backslashes escape the special character . in regular expressions
-AlaskaWetChemAbsorbance$dataset <- gsub("cm", "", AlaskaWetChemAbsorbance$dataset)
+#not sure why but when rthe next line is run alone it will produce an error but if you run the prevouis with it runs ok
+AlaskaWetChemAbsorbance <- create_model_df_1(alaska_wet_chem, alaska_absorbance_df, "dataset")
 
 # Write csv file
-write.csv(AlaskaWetChemAbsorbance, "csvFiles/AlaskaWetChemAbsorbance.csv", row.names = F)
+#write.csv(AlaskaWetChemAbsorbance, "csvFiles/AlaskaWetChemAbsorbance.csv", row.names = F)
 
-
-## streamline the process
-
-## assuming that both dataframe has been read have the same sample column name
-create_model_df_1 <- function(wetChemData, absorbData, sampleColName){
-  # bind calibration data to transformed data
-  wetChemAbsorb <- full_join(wetChemData, absorbData, by = sampleColName)
-  ## this replaces .0 with a space, the backslashes escape the special character . in regular expressions
-  wetChemAbsorb$dataset <- gsub("\\.0", "", wetChemAbsorb$dataset)
-  ## this replaces cm with a space, the backslashes escape the special character . in regular expressions
-  wetChemAbsorb$dataset <- gsub("cm", "", wetChemAbsorb$dataset)
-
-  return(wetChemAbsorb)
-}
-
-
-
-# the same function but directly  from path
-create_model_df_2 <- function(wetChemDataPath, absorbDataPath){
-  #read FTIRS  files
-  ftirs <- read_files(absorbDataPath)
-  #create absorbance df
-  absorbData <- create_absorbance_df(ftirs)
-  #change data to numeric (best to do create_absorbance_df function)
-
-  #check if the the absorbance data has name attribute
-  if(Negate(is.null)(names(absorbData))) {
-    require(data.table)
-    setDT(absorbData, keep.rownames = "dataset")[]
-  }
-
-  #read bsi wet chem percentages
-  wetChemData <- read_csv(wetChemDataPath) %>%
-    clean_names()
-  #rename columns assuming the first col is sample names and second col is BSi percents
-  names(wetChemData)[1] <- "dataset"
-  names(wetChemData)[2] <- "BSiPercent"
-  #select only those two cols
-  wetChemData <- wetChemData %>%
-    select(dataset, BSiPercent)
-
-  # bind calibration data to transformed data
-  wetChemAbsorb <- full_join(wetChemData, absorbData, by = "dataset")
-
-  #clean sample names
-  ## this replaces .0 with a space, the backslashes escape the special character . in regular expressions
-  wetChemAbsorb$dataset <- gsub("\\.0", "", wetChemAbsorb$dataset)
-  ## this replaces cm with a space, the backslashes escape the special character . in regular expressions
-  wetChemAbsorb$dataset <- gsub("cm", "", wetChemAbsorb$dataset)
-
-  return(wetChemAbsorb)
-}
-
-#test
-aAbsC <- lapply(alaska_absorbance_df, as.numeric)
-apply(is.na(aAbsC), 2, which) #chr w/ scientific notation was tuned to NA so need to fix before
-testfun_path <- create_model_df_2("Maxwell-Alaska Samples  - Final Top 100.csv",
-                                  "Samples/alaska_csv" )
-testfun_df <- create_model_df_1(alaska_wet_chem, alaska_absorbance_df, "dataset")
 
 

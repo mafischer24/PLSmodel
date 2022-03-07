@@ -8,7 +8,7 @@ library(tidyverse)
 read_files <- function(x) {
   # Read in each sample file
   fname <- list.files(x, full.names = T)
-  filelist <- map(fname, read.csv, sep = "")
+  filelist <- map(fname, read_csv, sep = "")
 
   # Attach names to samples
 

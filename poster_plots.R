@@ -7,10 +7,18 @@ library(ggpubr)
 #quartz vs diatoms vs lake sample spectra ( what kind of data are we looking at? )
 # what is ss?  sea sand
 SS <- reformattedData$`SS.0` %>%
-  pivot_longer(everything(), names_to = "wavenumber", values_to = "absorbance")
+  pivot_longer(everything(), names_to = "wavenumber", values_to = "absorbance") %>%
+  mutate(wavenumber = as.numeric(wavenumber))
 
 WQ <- reformattedData$`WQ.0` %>%
-  pivot_longer(everything(), names_to = "wavenumber", values_to = "absorbance")
+  pivot_longer(everything(), names_to = "wavenumber", values_to = "absorbance")%>%
+  mutate(wavenumber = as.numeric(wavenumber))
+
+DB <- read.table("~/Downloads/DB 7 [2].0.dpt")
+names(DB)[1] <- "wavenumber"
+names(DB)[2] <- "absorbance"
+DB <- DB %>%
+  mutate(wavenumber = as.numeric(wavenumber))
 
 DB <- read.table("~/Downloads/DB 7 [2].0 (1).dpt", sep = " ") %>%
   separate(col = "V1", into = c("wavenumber", "absorbance"),
@@ -29,18 +37,22 @@ start <- c(435, 790, 1050)
 end <- c(480, 830, 1280)
 
 
+#find areas for BSI to highlight
+intervals <- c(368, 3750, 435, 480, 790, 830,1050, 1280)
+WQ %>% filter_all(any_vars(. %in% intervals))
+which(WQ == contains(intervals))
+
 ggplot() +
-  geom_line(data = WQ, aes(x=as.numeric(wavenumber), y= absorbance, color = "Washed quartz"), color = "black")+
-  geom_line(data = DB, aes(x=as.numeric(wavenumber), y= absorbance, color = "High BSi Sample"), color = "blue") +
-  geom_line(data = DE, aes(x=as.numeric(wavenumber), y= absorbance), color = "darkred") +
-  theme_bw() +
+  geom_line(data = WQ, aes(x=as.numeric(wavenumber), y= absorbance, color = "blue"))+
+  geom_line(data = DB, aes(x=as.numeric(wavenumber), y= absorbance)) +
+  scale_x_reverse() +
+  theme_bw()  +
   xlim(4000, 300)+
   xlab("Absorbance") +
   ylab(expression(paste("Wavenumber ", cm^{-1}))) +
   geom_rect(inherit.aes=FALSE, aes(xmin=start, xmax=end, ymin= - Inf, ymax=Inf),
             color="transparent", fill="orange", alpha=0.3) +
   ggtitle("Example FTIRS Spectra")
-
 
 
 
@@ -61,6 +73,8 @@ ggplot(pls_bsi, aes(x=wet_chem, y = pls)) +
   ylab("PLS Predicted BSi Percent (%)")+
   ggtitle("Predeicted Fitness Using PLS Model")+
   theme_bw()
+
+
 
 
 
