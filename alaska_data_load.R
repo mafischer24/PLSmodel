@@ -27,7 +27,11 @@ library(janitor)
 #for(i in 1:100){
 
 #  alaska_filelist[[i]] %>%
+<<<<<<< HEAD
+#    select(-1)
+=======
  #   select(-1)
+>>>>>>> ae39f920a29b2a4be853672bbd2f304fd6ff4b49
 
   #pivot wider
   # add each row to respective matrix

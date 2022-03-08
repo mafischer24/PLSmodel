@@ -19,7 +19,9 @@ library(pls)
 
 ```{r}
 
-test_model <- plsr(BSiPercent~., ncomp = 10, data=wetChemAbsorbance, validation = "CV", segments = 10)
+test_model <- akGLpls_intv
+df_used <-  akGL_wetChemAbs_intervals
+actual_bsi_only <- akGL_wetChemAbs_intervals$BSi
 ```
 
 # decide on number of components: 
@@ -34,30 +36,31 @@ Plot to see how the regression coefficients are different based on the number of
 
 ```{r}
 #choose a range for the number of components (ncomp) based or just one
-plot(test_model, plottype = "coef", ncomp=c(2:6), legendpos = "topright")
+plot(test_model, plottype = "coef", ncomp=c(1:6), legendpos = "topright")
 ```
 ## grid search 
 a tool to search for the best predictive performance that can be used to tune the 'ncomp' hyperparameter. This uses a training, testing and validation sets, so it redefines the model 
 
 ```{r}
 #split the data to training (70%), validation (10%), testing (20%)
+
 spec = c(train = .7, test = .2, validate = .1)
 
 g = sample(cut(
-  seq(nrow(wetChemAbsorbance)), 
-  nrow(wetChemAbsorbance)*cumsum(c(0,spec)),
+  seq(nrow(df_used)), 
+  nrow(df_used)*cumsum(c(0,spec)),
   labels = names(spec)
 ))
 
-res = split(wetChemAbsorbance, g)
+res = split(df_used, g)
 
 train <- res$train #70%
 val <- res$validate # 10%
 test <- res$test#20%
 
 # Split the column names in X and Y
-X_colnames <- colnames(wetChemAbsorbance)[4:3700] #BSi absorbance at each wavenumber
-Y_colnames <- colnames(wetChemAbsorbance)[2] # BSi percentage  
+X_colnames <- colnames(df_used)[2:length(df_used)] #BSi absorbance at each wavenumber
+Y_colnames <- colnames(df_used)[1] # BSi percentage  
 
 # Split each train, val, test into two matrices
 X_train_matrix <- as.matrix(train[X_colnames])
@@ -72,15 +75,14 @@ Y_test_matrix <- as.matrix(test[Y_colnames])
 # Loop through possible values for n_comp to optimize R2 on validation data
 best_r2 <- 0
 best_ncomp <- 0
-for (n_comp in c(1:10)){ # you can change number of components you want to test here
+for (ncomp in c(2:(test_model$ncomp-2))){ # you can change number of components you want to test here
   ## redefine the model: 
-  model <- plsr(Y_train_matrix ~ X_train_matrix , ncomp=n_comp, validation='CV' ) #validation method changes r2
-  predictions <- as.matrix(data.frame(predict(model, ncomp=n_comp, X_val_matrix)))
+  model <- plsr(Y_train_matrix ~ X_train_matrix , ncomp=ncomp, validation='CV' ) #validation method changes r2
+  predictions <- as.matrix(data.frame(predict(model, ncomp=ncomp, X_val_matrix))) ##uses validation matrix 
   mean_r2 <- mean(diag(cor(predictions, Y_val_matrix))**2)
-
-  if (mean_r2 > best_r2){
+  if(mean_r2 > best_r2){
     best_r2 <- mean_r2
-    best_ncomp <- n_comp
+    best_ncomp <- ncomp
   }
 }
 
@@ -91,19 +93,20 @@ print(best_r2)
 or using algorthim from the pls package
 ```{r}
 selectNcomp(test_model, method = "onesigma", plot = TRUE)
+selected_ncomp <- selectNcomp(test_model, method = "onesigma", plot = FALSE)
 ```
 
 ## check for test score using the best number of components
 ```{r}
 # Predict on test for having a final R2 estimate
-best_model <- plsr(Y_train_matrix ~ X_train_matrix, ncomp=best_ncomp,  validation='LOO')
-test_predictions <- as.matrix(data.frame(predict(best_model, ncomp=best_ncomp, X_test_matrix))) 
+best_model <- plsr(Y_train_matrix ~ X_train_matrix, ncomp=best_ncomp,  validation='CV', segments = 10)
+test_predictions <- as.matrix(data.frame(predict(best_model, ncomp=best_ncomp, X_test_matrix))) #uses test matrix  
 mean_r2 <- mean(diag(cor(test_predictions, Y_test_matrix))**2)
 # print predictive average R2 score:
 print(mean_r2)
 ```
 
-## % variance explained
+## % variance explained: contribution of each additional varible 
 ```{r}
 explvar(test_model)
 explvar(best_model)
@@ -115,7 +118,7 @@ plot(x=ncomps, y=var, type = "b")
 ## loading plot
 The Loading Plot is a plot of the relationship between original variables and subspace dimensions. It is used for interpreting relationships among variables. Highly correlated variables have similar weights in the loading vectors and appear close together in the loading plots of all dimensions.
 ```{r}
-plot(test_model, "loadings", comps = 2:7, legendpos = "bottomright", xlab = "nm")
+plot(test_model, "loadings", comps = 2:7, legendpos = "bottomleft", xlab = "nm")
 abline(h = 0)
 ```
 
@@ -123,20 +126,25 @@ abline(h = 0)
 used to look for patterns, groups or outliers in the data. look for clustering, outliers,or time-based patterns. the percentages are the relative amount of X variance explained by each component.
 ```{r}
 plot(test_model, plottype = "scores", comps = 2:7)
-plot(test_model, plottype = "scores", comps = 3)
+plot(test_model, plottype = "scores", comps = selected_ncomp)
 ```
 ## Cross-validated predictions
 ```{r}
 plot(test_model, ncomp = 2:7, asp = 1, line = TRUE)
+
 ```
 
-## R^2
-
+## R^2: 
+from package/function describtion: "unadjusted R^2. It is overoptimistic and should not be used for assessing models"
 ```{r}
-validationplot(test_model, val.type="R2")  ## check vivian's r^2 +  understad where it is coming from
+#R2(test_model)
+#validationplot(test_model, val.type="R2")  ## check vivian's r^2 +  understad where it is coming from
 ```
 
 ## correlation plot 
+"works exactly like  scoreplot method. The “correlation loadings”, i.e. the correlations between each variable and the selected components (see References), are plotted as pairwise scatter plots, with concentric circles of radii given by radii. Each point corresponds to a variable. The squared distance between the point and origin equals the fraction of the variance of the variable explained by the components in the panel."
+
+this plot tells you the  explained varince / correlation between each varible (each dot) and component. The inner radi is 50% and outer radii is 100% (defualt setting)
 ```{r}
 corrplot(test_model, comps = 2:4 )
 ```
@@ -144,70 +152,107 @@ corrplot(test_model, comps = 2:4 )
 # residuals
 the mean residuals for each component number
 ```{r}
-for (i in 2:10){ #only after running all of viviine code!
+for (i in 2:test_model$ncomp){ 
     predicted_bsi <- as.data.frame(test_model$fitted.values)
     #select model with 3 components
     predicted_bsi <- as.data.frame(predicted_bsi[,c(i)])
     #Rename wet_chem_data columns
-    names(predicted_bsi )[1] <- "BSiPercent_Predicted"
+    names(predicted_bsi)[1] <- "BSiPercent_Predicted"
     #Combine actual and predicted BSi wetchem data
-    BSi <- cbind(actual_bsi_wetchem, predicted_bsi)
+    BSi <- cbind(row.names(df_used),actual_bsi_only, predicted_bsi)
+    names(BSi)[1] <- "dataset"
+    names(BSi)[2] <- "BSiPercent_Actual"
+    BSi$dataset <- as.character(BSi$dataset)
     #reformat into long so we can graph
     BSi_Long <- BSi %>%
-      select(dataset, BSiPercent, BSiPercent_Predicted)%>%
+      select(dataset, BSiPercent_Actual, BSiPercent_Predicted)%>%
       gather(key = "variable", value = "value", -dataset)
     #Create dataframe with residual error ----
     #Calculating Residuals: Difference between actual and predicted
-    BSi$Difference <- (BSi$BSiPercent_Predicted - BSi$BSiPercent)
+    BSi$Difference <- (BSi$BSiPercent_Predicted - BSi$BSiPercent_Actual)
     #Table of differences for each sample
     Difference <- BSi %>%
       select(dataset, Difference)
     Difference <- round_df(Difference, 2)
-    #Calculate absolute values, mean and median of residual errors ----
+    #Calculate absolute values then mean  of residual errors ----
     Abs <- (abs(Difference$Difference))
     print(paste("for comp ", i, " the average residual is ", mean(Abs)))
 }
 ```
+
+or using the function from package (numbers are slightly different than calculated)
+```{r}
+model_res <- residuals(test_model)
+mean_residuals_df <- data.frame(ncomp = 1:test_model$ncomp, mean_residuals = 1:test_model$ncomp)
+for(i in 1:test_model$ncomp){
+  mean_residuals_df$mean_residuals[i] <- mean(abs(model_res[,1,i]))
+}
+mean_residuals_df <- round_df(mean_residuals_df, 2)
+mean_residuals_df
+```
+
 creating a residual graph for the best components
 ```{r}
-predicted_values <- as.data.frame(test_model$fitted.values)
-#change number of components here
-ncomp <- best_ncomp
-predicted_values <- as.data.frame(predicted_values[,c(ncomp)])
-#Rename wet_chem_data columns
-names(predicted_values )[1] <- "BSiPercent_Predicted"
-#Combine actual and predicted BSi wetchem data
-BSi <- cbind(actual_bsi_wetchem, predicted_values)
-#reformat into long so we can graph
-BSi_Long <- BSi %>%
-      select(dataset, BSiPercent, BSiPercent_Predicted)%>%
+# chosen best number of components
+i <- selected_ncomp
+predicted_bsi <- as.data.frame(test_model$fitted.values)
+    #select model with 3 components
+    predicted_bsi <- as.data.frame(predicted_bsi[,c(i)])
+    #Rename wet_chem_data columns
+    names(predicted_bsi)[1] <- "BSiPercent_Predicted"
+    #Combine actual and predicted BSi wetchem data
+    BSi <- cbind(row.names(df_used),actual_bsi_only, predicted_bsi)
+    names(BSi)[1] <- "dataset"
+    names(BSi)[2] <- "BSiPercent_Actual"
+    BSi$dataset <- as.character(BSi$dataset)
+    #reformat into long so we can graph
+    BSi_Long <- BSi %>%
+      select(dataset, BSiPercent_Actual, BSiPercent_Predicted)%>%
       gather(key = "variable", value = "value", -dataset)
     #Create dataframe with residual error ----
     #Calculating Residuals: Difference between actual and predicted
-    BSi$Difference <- (BSi$BSiPercent_Predicted - BSi$BSiPercent)
+    BSi$Difference <- (BSi$BSiPercent_Predicted - BSi$BSiPercent_Actual)
     #Table of differences for each sample
     Difference <- BSi %>%
       select(dataset, Difference)
     Difference <- round_df(Difference, 2)
-    #Calculate absolute values, mean and median of residual errors ----
-    Abs <- (abs(Difference$Difference))
-    print(paste("for comp ", ncomp, " the average residual is ", mean(Abs)))
-    
+
     print(Difference %>%
       mutate(highlight_flag = ifelse(Difference >= '0', T, F)) %>%
       ggplot (aes(x = dataset, y = Difference)) +
       geom_col(aes(fill = highlight_flag)) +
-      scale_fill_manual(values = c('red', 'green'), name = "Overfitting") +
-      geom_text( data = Difference, aes(label = Difference), fontface ="bold", size = 2.5, vjust = 0) +
+      scale_fill_manual(values = c('red', 'darkgreen'), name = "Overfitting") +
+       #geom_text( data = Difference, aes(label = Difference), fontface ="bold", size = 2.5, vjust = 0) +
       labs(
         y = "Difference in Percentage",
-        x = "Sample ID",
+        x = "Sample",
         title=expression("Residuals: Full Spectrum" ~ cm^{-1}),
-        subtitle= paste0("For 28 Samples with ", ncomp, " comp and ", 5, "segments"),
+        subtitle= paste0("For each sample with ", i, " components and mean residual of  ", mean_residuals_df$mean_residuals[i], " cm^1"),
         colour = "variabl") +
-      theme(legend.position = c(0.1, 0.85),
-            axis.text.x  = element_text(angle = 90)) )
+        theme_bw() +
+        scale_y_continuous(breaks = scales::pretty_breaks(n = 10))+
+        theme(axis.text.x = element_blank()
+              #,legend.position = c(0.1, 0.85), axis.text.x  = element_text(angle = 90)
+              ) 
+        
+     )
 ```
 
+```{r}
+
+pls_bsi <- data.frame( wet_chem = actual_bsi_only, pls = unlist(predicted_bsi))
+
+pls_lm <- lm(pls ~ wet_chem, pls_bsi)
+pls_bsi_r <- summary(pls_lm)$r.squared
+
+ggplot(pls_bsi, aes(x=wet_chem, y = pls)) +
+  geom_point()+
+  geom_smooth(method = "lm", se = FALSE, color = "darkGreen") +
+  geom_text(x = 5, y = 25, label = paste("R^2: ",round_df(pls_bsi_r, 3)))+
+  xlab("Wet Chemical BSi Percent (%)") +
+  ylab("PLS Predicted BSi Percent (%)")+
+  ggtitle("Predeicted Fitness Using PLS Model")+
+  theme_bw()
+```
 
 

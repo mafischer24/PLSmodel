@@ -1,6 +1,8 @@
 library(tidyverse)
 library(Metrics)
 library(pls)
+library(tidyr)
+library(ggpubr)
 
 #quartz vs diatoms vs lake sample spectra ( what kind of data are we looking at? )
 # what is ss?  sea sand
@@ -18,8 +20,22 @@ names(DB)[2] <- "absorbance"
 DB <- DB %>%
   mutate(wavenumber = as.numeric(wavenumber))
 
+DB <- read.table("~/Downloads/DB 7 [2].0 (1).dpt", sep = " ") %>%
+  separate(col = "V1", into = c("wavenumber", "absorbance"),
+           convert = TRUE, sep = "[[:space:]]")
+
+DE <- read.table("~/Downloads/DE 2.0.dpt", sep = " ") %>%
+  separate(col = "V1", into = c("wavenumber", "absorbance"),
+           convert = TRUE, sep = "[[:space:]]")
 # where is the diatom data
 #random lake sample
+#435 - 480cm-1
+#790 - 830cm-1
+#1050 - 1280cm-1
+
+start <- c(435, 790, 1050)
+end <- c(480, 830, 1280)
+
 
 #find areas for BSI to highlight
 intervals <- c(368, 3750, 435, 480, 790, 830,1050, 1280)
@@ -30,9 +46,13 @@ ggplot() +
   geom_line(data = WQ, aes(x=as.numeric(wavenumber), y= absorbance, color = "blue"))+
   geom_line(data = DB, aes(x=as.numeric(wavenumber), y= absorbance)) +
   scale_x_reverse() +
-  theme_bw() +
-  geom_rect(data=rects, inherit.aes=FALSE, aes(xmin=start, xmax=end, ymin=min(dat$value),
-                                               ymax=max(dat$value), group=group), color="transparent", fill="orange", alpha=0.3)
+  theme_bw()  +
+  xlim(4000, 300)+
+  xlab("Absorbance") +
+  ylab(expression(paste("Wavenumber ", cm^{-1}))) +
+  geom_rect(inherit.aes=FALSE, aes(xmin=start, xmax=end, ymin= - Inf, ymax=Inf),
+            color="transparent", fill="orange", alpha=0.3) +
+  ggtitle("Example FTIRS Spectra")
 
 
 
