@@ -1,10 +1,10 @@
 library(tidyverse)
 library(janitor)
 library(pls)
-library(Stack)
+
 ##building differnt models to test out:
 # model 1
-##greenland data only:
+##greenland data only: full spectrum
 wetChemAbsorbance <- read_csv("csvFiles/wetChemAbsorbance.csv") %>%
   select(-1, -X1)
 
@@ -36,8 +36,6 @@ summary(alaskaPLS)
 #extract col names of one df
 colName <- colnames(gl_interp)
 
-#is in the alska data the first column is 4000 or 400??
-#assuming it is 4000
 ak_wetChemAbs_transposed <- akWetChemAbsorbance
 #change column names to be able to rbind
 colnames(ak_wetChemAbs_transposed) <- colName
@@ -69,6 +67,6 @@ summary(akGLpls_1050)
 akGL_wetChemAbs_intervals <- akGL_wetChemAbs %>%
   select(BSi, `1049.22567`:`1282.60124`,`433.96282`:`480.25219`,`788.84798`:`831.2799`  )
 
-akGLpls_intv <- plsr(BSi~., ncomp = 10, data=akGL_wetChemAbs_intervals, validation = "CV", segments = 10)
-summary(akGLpls_intv)
+akGLpls_intervals <- plsr(BSi~., ncomp = 10, data=akGL_wetChemAbs_intervals, validation = "CV", segments = 10)
+summary(akGLpls_intervals)
 
