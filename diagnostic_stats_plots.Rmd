@@ -119,6 +119,8 @@ plot(x=ncomps, y=var, type = "b")
 ```
 ## loading plot
 The Loading Plot is a plot of the relationship between original variables and subspace dimensions. It is used for interpreting relationships among variables. Highly correlated variables have similar weights in the loading vectors and appear close together in the loading plots of all dimensions.
+
+How much do each varible contributes to the linear combenation (focus on abs values). Similar values indicate that the varible contribute the same extent 
 ```{r}
 plot(test_model, "loadings", comps = 2:7, legendpos = "bottomleft", xlab = "nm")
 abline(h = 0)
