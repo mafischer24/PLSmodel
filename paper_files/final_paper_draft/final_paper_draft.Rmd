@@ -147,7 +147,6 @@ Figure \ref{fig:test-fig} below.
 ```{r test-fig, fig.cap="test figure", echo=FALSE}
 plot(rnorm(10),rnorm(10))
 
-#none of the references are working despite being character for character identical with what he's writing. lovely.
 ```
 
 ```{r, echo = FALSE}
@@ -158,7 +157,6 @@ x<- tibble::tribble(
 )
 knitr::kable(x, caption = "caption here, \\label{tab:mytable}")
 
-# okay the table reference is working for some goddamned reason, fuck if I know
 ```
 
 table \ref{tab:mytable} above
