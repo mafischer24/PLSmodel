@@ -53,8 +53,8 @@ fig1 <- ggplot() +
   geom_line(data = DB, aes(x=as.numeric(wavenumber),
                            y= absorbance, color = "High BSi and TOC Sample")) +
   xlim(4000, 300)+
-  xlab("Absorbance") +
-  ylab(expression(paste("Wavenumber ", cm^{-1}))) +
+  ylab("Absorbance") +
+  xlab(expression(paste("Wavenumber ", cm^{-1}))) +
   geom_rect(inherit.aes=FALSE, aes(xmin=start, xmax=end, ymin= - Inf, ymax=Inf, fill= "BSi Range"),
             color="transparent", alpha=0.3) +
   geom_rect(inherit.aes=FALSE, aes(xmin=2800, xmax=3000, ymin= - Inf, ymax=Inf, fill= "TOC Range"),
@@ -88,9 +88,9 @@ pls_lm <- lm(pls ~ wet_chem, pls_bsi)
 pls_bsi_r <- summary(pls_lm)$r.squared
 
 lm_pls <- ggplot(pls_bsi, aes(x=wet_chem, y = pls)) +
-  geom_point()+
-  geom_smooth(method = "lm", se = FALSE, color = "darkGreen") +
-  geom_text(x = 8, y = 24, label = paste("R^2: ",round_df(pls_bsi_r, 3)))+
+  geom_point(size = 2)+
+  geom_smooth(method = "lm", se = FALSE, color = "darkBlue") +
+  geom_text(x = 8, y = 24, label = paste("R^2: ", round_df(pls_bsi_r, 3)))+
   xlab("Wet Chemical BSi Percent (%)") +
   ylab("PLS Predicted BSi Percent (%)")+
   ggtitle("Predeicted Fitness Using PLS Model")+
@@ -113,8 +113,8 @@ area_bsi_r <- summary(area_lm)$r.squared
 
 lm_area <- ggplot(area_bsi, aes(x=percent_b_si_based_on_chemical_digestion_method,
                                 y = peak_area_1000_1150_cm_1)) +
-  geom_point()+
-  geom_smooth(method = "lm", se = FALSE, color = "darkred") +
+  geom_point(size = 2)+
+  geom_smooth(method = "lm", se = FALSE, color = "darkGreen") +
   geom_text(x = 8, y = 14, label = paste("R^2: ",round_df(area_bsi_r, 3)))+
   xlab("Wet Chemical BSi Percent (%)") +
   ylab(expression(paste("1050 - 1150 ", cm^{-1}, " Peak Area Estimated")))+
@@ -124,7 +124,7 @@ lm_area <- ggplot(area_bsi, aes(x=percent_b_si_based_on_chemical_digestion_metho
 
 fig2 <- grid.arrange(lm_area, lm_pls, nrow = 1,
                      top = "Comparison Between traditional methods and PLS Model")
-#ggsave(filename = "~/Desktop/dewet/fig2.tiff" , plot = fig2,  device='tiff', dpi=700, width = 10)
+ggsave(filename = "~/Desktop/dewet/fig2.tiff" , plot = fig2,  device='tiff', dpi=700, width = 10)
 
 
 #figure 3 : differnt models mean residuals:
@@ -200,7 +200,8 @@ fig_3_4 <- ggarrange(fig3, fig4,  ncol=2, nrow=1, common.legend = TRUE,
 
 #fig 5
 #x variance  explianed
-sum_var <- cumsum(explvar(akGLpls))
+x_sum_var <- cumsum(explvar(akGLpls))
+sum_var <- 100 * drop(R2(akGLpls, estimate = "train", intercept = FALSE)$val)
 ind_var <- explvar(akGLpls)
 x_var <- data.frame(sum = sum_var, indiv = ind_var, ncomp = 1:10)
 
@@ -236,11 +237,9 @@ title("Loading Plot for Alaska and Greenland Model")
 
 #or
 #re-creating the dataframe to be able to use ggplot
-df_loading<- data.frame( `ncomp2`= akGLpls$loading.weights[,2],
-                 `ncomp3` = akGLpls$loading.weights[,3],
-                 `ncomp4` = akGLpls$loading.weights[,4],
-                 `ncomp5` = akGLpls$loading.weights[,5],
-                 `ncomp6` = akGLpls$loading.weights[,6])
+df_loading<- data.frame(`ncomp1`= akGLpls$loading.weights[,1],
+                        `ncomp2`= akGLpls$loading.weights[,2],
+                        `ncomp3` = akGLpls$loading.weights[,3])
 require(data.table)
 setDT(df_loading, keep.rownames = "wavenumber")[]
 df_loading$wavenumber <- as.numeric(gsub("`", "", df_loading$wavenumber ))
@@ -249,7 +248,7 @@ df_loading_longer<- df_loading %>%
   pivot_longer(cols = contains("ncomp"), names_to = "ncomp", values_to = "loading_weight")
 
 fig6 <- ggplot(df_loading_longer, aes(x= wavenumber, y=loading_weight, color = ncomp))+
-  geom_line(aes(size = ncomp)) +
+  geom_line(aes(size = ncomp), alpha = 0.8) +
   theme_bw()+
   geom_hline(yintercept = 0, color = "darkred") +
   xlim(4000, 300)+
@@ -257,14 +256,15 @@ fig6 <- ggplot(df_loading_longer, aes(x= wavenumber, y=loading_weight, color = n
   annotate("rect", xmin=1050, xmax=1280, ymin=-Inf, ymax=Inf, alpha=0.2, fill="orange") +
   annotate("rect", xmin=435, xmax=480, ymin=-Inf, ymax=Inf, alpha=0.2, fill="orange") +
   annotate("rect", xmin=790, xmax=830, ymin=-Inf, ymax=Inf, alpha=0.2, fill="orange") +
-  scale_color_manual(values=c("#8DD181", "#00bfff", "#B8E2B1","#A3C562", "#5A9E4E"),
+  scale_color_manual(values=c("#8DD181",  "#5A9E4E", "#00bfff"),
                      name="Number of Components",
-                     labels=c("2", "3", "4", "5","6")) +
-  scale_size_manual(values = c(0.5,1.5, 0.5, 0.5, 0,5), guide = 'none') +
+                     labels=c("1", "2", "3")) +
+  scale_size_manual(values = c(0.8,0.8,1.5), guide = 'none') +
   ylab("Loading Value") +
   xlab(expression(paste("Wavenumber ", cm^{-1}))) +
   ggtitle("Loading Plot for Alaska and Greenland Model") +
-  labs(subtitle = "How much does each variable contribute?")
+  labs(subtitle = "How much does each variable contribute?")+
+  theme(legend.position = "bottom",legend.text=element_text(size=8))
 
 ggsave(plot = fig6, filename = "~/Desktop/dewet/fig6.tiff" ,  device='tiff', dpi=700, width = 7)
 
@@ -312,8 +312,36 @@ fig7 <-  ggbarplot(Difference %>%
           ggtheme = theme_minimal(),
           title = "Residuals for Alaska and Greenland PLS Model",
           subtitle= paste0("For each sample with ", i, " components and mean residual of  ",
-                           mean_residuals_df$mean_residuals[i], " cm^1") )+
+                           mean_residuals_df$mean_residuals[i], " %") )+
   rremove("x.text")
 
 ggsave(plot = fig7, filename = "~/Desktop/dewet/fig7.tiff" ,  device='tiff', dpi=700, width = 7)
 
+#fig 8
+tiff(file="~/Desktop/dewet/fig8.tiff")
+plot(test_model, ncomp =3, asp = 1, line = TRUE, col = "#00bfff")
+dev.off()
+
+akGLpls$call
+
+# Figure9
+
+f1 <- ggplot(rmsep_df_all, aes(x= ncomp, y = RMSEP)) +
+  geom_col()+
+  facet_wrap(~model, nrow  = 1) +
+  theme_bw() +
+  scale_x_continuous(breaks = c(1,2,3,4,5,6,7,8,9,10))
+
+f2 <- ggplot(mean_residuals_all, aes(x= ncomp, y = mean_residuals)) +
+  geom_col()+
+  facet_wrap(~model, nrow  = 1) +
+  theme_bw() +
+  scale_x_continuous(breaks = c(1,2,3,4,5,6,7,8,9,10))
+
+ggarrange(f1, f2,  ncol=1, nrow=2, common.legend = TRUE,
+                     legend="bottom", widths = c(5,5) )
+100 * drop(R2(akGLpls, estimate = "train", intercept = FALSE)$val)
+
+100 * drop(R2(akGLpls, estimate = "all", intercept = FALSE)$val)
+akGLpls$Xvar
+summary(akGLpls)

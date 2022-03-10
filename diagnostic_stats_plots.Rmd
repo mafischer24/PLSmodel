@@ -21,9 +21,9 @@ library(varEst)
 
 ```{r}
 
-test_model <- greenlandPLS
-df_used <-  wetChemAbsorbance
-actual_bsi_only <- wetChemAbsorbance$BSiPercent
+test_model <- akGLpls
+df_used <-  akGL_wetChemAbs
+actual_bsi_only <- akGL_wetChemAbs$BSi
 ```
 
 # decide on number of components: 
@@ -134,15 +134,15 @@ plot(test_model, plottype = "scores", comps = selected_ncomp)
 ```
 ## Cross-validated predictions
 ```{r}
-plot(test_model, ncomp = 2:7, asp = 1, line = TRUE)
+plot(test_model, ncomp = 1:7, asp = 1, line = TRUE)
 
 ```
 
 ## R^2: 
 from package/function describtion: "unadjusted R^2. It is overoptimistic and should not be used for assessing models"
 ```{r}
-#R2(test_model)
-#validationplot(test_model, val.type="R2")  ## check vivian's r^2 +  understad where it is coming from
+R2(test_model)
+validationplot(test_model, val.type="R2")  ## check vivian's r^2 +  understad where it is coming from
 ```
 
 ## correlation plot 
