@@ -13,15 +13,17 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(Metrics)
 library(pls)
+library(qut)
+library(varEst)
 ```
 
 ## build the model
 
 ```{r}
 
-test_model <- akGLpls_intv
-df_used <-  akGL_wetChemAbs_intervals
-actual_bsi_only <- akGL_wetChemAbs_intervals$BSi
+test_model <- greenlandPLS
+df_used <-  wetChemAbsorbance
+actual_bsi_only <- wetChemAbsorbance$BSiPercent
 ```
 
 # decide on number of components: 
@@ -117,6 +119,8 @@ plot(x=ncomps, y=var, type = "b")
 ```
 ## loading plot
 The Loading Plot is a plot of the relationship between original variables and subspace dimensions. It is used for interpreting relationships among variables. Highly correlated variables have similar weights in the loading vectors and appear close together in the loading plots of all dimensions.
+
+How much do each varible contributes to the linear combenation (focus on abs values). Similar values indicate that the varible contribute the same extent 
 ```{r}
 plot(test_model, "loadings", comps = 2:7, legendpos = "bottomleft", xlab = "nm")
 abline(h = 0)
@@ -165,14 +169,14 @@ for (i in 2:test_model$ncomp){
     BSi$dataset <- as.character(BSi$dataset)
     #reformat into long so we can graph
     BSi_Long <- BSi %>%
-      select(dataset, BSiPercent_Actual, BSiPercent_Predicted)%>%
+      dplyr::select(dataset, BSiPercent_Actual, BSiPercent_Predicted)%>%
       gather(key = "variable", value = "value", -dataset)
     #Create dataframe with residual error ----
     #Calculating Residuals: Difference between actual and predicted
     BSi$Difference <- (BSi$BSiPercent_Predicted - BSi$BSiPercent_Actual)
     #Table of differences for each sample
     Difference <- BSi %>%
-      select(dataset, Difference)
+      dplyr::select(dataset, Difference)
     Difference <- round_df(Difference, 2)
     #Calculate absolute values then mean  of residual errors ----
     Abs <- (abs(Difference$Difference))
@@ -207,14 +211,14 @@ predicted_bsi <- as.data.frame(test_model$fitted.values)
     BSi$dataset <- as.character(BSi$dataset)
     #reformat into long so we can graph
     BSi_Long <- BSi %>%
-      select(dataset, BSiPercent_Actual, BSiPercent_Predicted)%>%
+      dplyr::select(dataset, BSiPercent_Actual, BSiPercent_Predicted)%>%
       gather(key = "variable", value = "value", -dataset)
     #Create dataframe with residual error ----
     #Calculating Residuals: Difference between actual and predicted
     BSi$Difference <- (BSi$BSiPercent_Predicted - BSi$BSiPercent_Actual)
     #Table of differences for each sample
     Difference <- BSi %>%
-      select(dataset, Difference)
+      dplyr::select(dataset, Difference)
     Difference <- round_df(Difference, 2)
 
     print(Difference %>%
@@ -255,4 +259,16 @@ ggplot(pls_bsi, aes(x=wet_chem, y = pls)) +
   theme_bw()
 ```
 
+```{r}
+x_mat <- as.matrix(df_used %>% dplyr::select(-1))
+y_mat <- as.matrix(df_used %>% dplyr::select(1))
+rcv(x_mat, y_mat, a= NULL,d= 2, method = "spam")
+```
+
+Calculate test MSE for best components 
+```{r}
+pls_pred = predict(test_model, X_test_matrix, ncomp = 2)
+mean((c(pls_pred) - Y_test_matrix)^2)
+
+```
 
