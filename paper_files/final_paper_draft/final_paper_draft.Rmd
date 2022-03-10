@@ -1,5 +1,5 @@
 ---
-title: Towards a universal calibration model to predict biogenic silica and organic carbon percentages in lake sediment core samples
+title: Calibration, Validation, and Radiation$:$ Predicting Biogenic Silica and Organic Carbon Percentages in Lake Sediment Core Samples
 author:
   - name: Rana Gahwagy
     affil: 1,2,\ddagger,*
