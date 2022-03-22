@@ -3,6 +3,13 @@ title: "lauren-interp-testing"
 output: html_document
 ---
 
+```{r}
+##########################################################
+##   DEPRECATED, interpolation code in interpolation.R  ##
+##########################################################
+```
+
+
 ```{r setup, include=FALSE}
 library(tidyverse)
 library(stats)
