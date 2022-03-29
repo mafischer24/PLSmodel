@@ -1,0 +1,72 @@
+---
+title: "Interpolation Validation"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidvyerse)
+library(stats)
+
+# Like an import statement but for our own files
+source('interpolation.R')
+```
+
+```{r}
+# File Read-in
+fname <- list.files("Samples/greenland_csv", full.names = T)
+filelist <- lapply(fname, read_csv)
+# Remove whitespace and weird characters (Vivianne's regex)
+names(filelist) <- gsub(".*/(.*)\\..*", "\\1", fname)
+# Removing the redundant index variable
+filelist <- lapply(filelist, function(x){select(x, wavenumber, absorbance)})
+
+
+interp_diff <- function(df) {
+  ### Calculates the mean and max differences between the original and interpolated data
+  ### for each of three different interpolation modes: the alaska wavenumbers, rounding, and truncating. 
+  
+  # Getting the Alaska wavenumber vector
+  ak_wavenumbers <- read_csv("Samples/alaska_csv/AS-01\ (8_24_16).0.csv")$wavenumber
+  ak_rounded <- round(ak_wavenumbers, digits = 0)
+  ak_truncated <- floor(ak_wavenumbers)
+
+  # Cutting down the original greenland file to match the wavenumber range
+  cut_df <- df %>% filter(wavenumber <= 3997) %>% filter(wavenumber >= 368.3)
+  
+  # Create an interpolated copy of that file against the alaska wavenumbers, and rename it
+  interpolated_ak <- interpolate(df$wavenumber, df$absorbance, ak_wavenumbers)
+  colnames(interpolated_ak) <- c('wavenum_ak', 'abs_ak')
+  
+  # Create an interpolated copy of that file against integer wavenumbers and rename
+  interpolated_round <- interpolate(df$wavenumber, df$absorbance, ak_rounded)
+  colnames(interpolated_round) <- c('wavenum_round', 'abs_round')
+  
+  # The same, but truncated instead of rounding
+  interpolated_trunc <- interpolate(df$wavenumber, df$absorbance, ak_truncated)
+  colnames(interpolated_trunc) <- c('wavenum_trunc', 'abs_trunc')
+  
+  # Bind all three of above into a single data frame columnwise
+  all <- cbind(cut_df, interpolated_ak, interpolated_round, interpolated_trunc) %>%
+    # Calculate the differences between the interpolated and original values
+    mutate(ak_diff = abs(absorbance - abs_ak), 
+           round_diff = abs(absorbance - abs_round), 
+           trunc_diff = abs(absorbance - abs_trunc)) %>% 
+    # Calculate the mean and max differences for each method
+    summarize(ak_mean = mean(ak_diff, na.rm = TRUE), 
+              round_mean = mean(round_diff, na.rm = TRUE),
+              trunc_mean = mean(trunc_diff, na.rm = TRUE),
+              ak_max = max(ak_diff, na.rm = TRUE), 
+              round_max = max(round_diff, na.rm = TRUE), 
+              trunc_max = max(trunc_diff, na.rm = TRUE))
+    return(all)}
+
+
+```
+
+```{r}
+listed <- lapply(filelist, interp_diff)
+
+# Pull it into a data frame showing the mean error for each interpolation style
+# and the max individual error for each interpolation style
+list_df <- as.data.frame(do.call(rbind, listed))
+```
