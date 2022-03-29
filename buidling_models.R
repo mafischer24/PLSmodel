@@ -7,10 +7,13 @@ library(pls)
 ##greenland data only: full spectrum
 wetChemAbsorbance <- read_csv("csvFiles/wetChemAbsorbance.csv") %>%
   select(-1, -X1)
-
 greenlandPLS <- plsr(BSiPercent~., ncomp =10, data=wetChemAbsorbance, validation = "CV", segments = 10)
 
 summary(greenlandPLS)
+
+#testing the modle with alaska data (not working, why? missing varbile V188, how to fix??)
+predict(greenlandPLS, akWetChemAbsorbance%>%select(-1))
+predplot(greenlandPLS, ncomp = 4, newdata =  akWetChemAbsorbance, asp = 1, line = TRUE)
 
 ##intopolated greenland data only: (data set found in interpolation.R, maybe we should write to csv in file )
 
@@ -28,8 +31,11 @@ akWetChemAbsorbance <- read_csv("csvFiles/AlaskaWetChemAbsorbance.csv") %>%
 #why is there NA rows?
 akWetChemAbsorbance <- na.omit(akWetChemAbsorbance)
 alaskaPLS <- plsr(BSiPercent~., ncomp = 10, data=akWetChemAbsorbance, validation = "CV", segments = 10)
-
 summary(alaskaPLS)
+
+#predicting using geenland data
+predict(alaskaPLS, wetChemAbsorbance%>%select(-1))
+predplot(alaskaPLS, ncomp = 4, newdata =  wetChemAbsorbance, asp = 1, line = TRUE)
 
 #model 3
 # joining alaska +  interpolated greenland
