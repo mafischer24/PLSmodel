@@ -4,6 +4,11 @@ author: "Grace Hartley"
 date: "2/27/2022"
 output: html_document
 ---
+```{r}
+##########################################################
+##   DEPRECATED, create dataframe code in compiled_data_load.R   ##
+##########################################################
+```
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)

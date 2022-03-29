@@ -1,3 +1,7 @@
+##########################################################
+##   DEPRECATED, create dataframe code in compiled_data_load.R   ##
+##########################################################
+
 ## assuming that both dataframe has been read have the same sample column name
 create_model_df_1 <- function(wetChemData, absorbData, sampleColName){
   if(Negate(is.null)(names(absorbData))) {
