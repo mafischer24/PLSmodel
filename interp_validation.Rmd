@@ -8,7 +8,7 @@ library(tidvyerse)
 library(stats)
 
 # Like an import statement but for our own files
-source('interpolation.R')
+source('R/interpolation.R')
 ```
 
 ```{r}
