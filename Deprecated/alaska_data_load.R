@@ -1,5 +1,8 @@
 library(tidyverse)
 library(janitor)
+##########################################################
+##   DEPRECATED, create dataframe code in compiled_data_load.R   ##
+##########################################################
 
 #alternative to read_files() not fully developed yet
 #upload alaska files

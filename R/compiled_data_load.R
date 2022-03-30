@@ -3,7 +3,7 @@ library(tidyverse)
 library(janitor)
 
 # Generate Greenland dataframe by importing interpolation function
-source('interpolation.R')
+source('R/interpolation.R')
 
 # Greenland dataframe ready for model
 greenland_df <- interpolate_greenland()
