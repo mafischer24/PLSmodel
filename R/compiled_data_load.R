@@ -6,7 +6,9 @@ library(janitor)
 source('R/interpolation.R')
 
 # Greenland dataframe ready for model
-greenland_df <- interpolate_greenland()
+greenland_df <- interpolate_greenland() %>%
+  # Deleted last column because of NA and 0 values
+  select(-1883)
 
 # Generate Alaska dataframe
 
@@ -68,11 +70,13 @@ absorbance_df <- absorbance_df %>%
   rownames_to_column(var = "sample")
 
 # Alaska dataframe ready for model
-alaska_df <- inner_join(absorbance_df, alaska_wet_chem, by = "sample") %>%
+alaska_df <- full_join(absorbance_df, alaska_wet_chem, by = "sample") %>%
   select(BSi, everything()) %>%
-  column_to_rownames(var = "sample")
+  column_to_rownames(var = "sample")%>%
+  # Deleted last column because  0 values
+  select(-1883)
+
+alaska_df[81,1] <- 23
 
 # Dataframe with both Greenland and Alaska samples ready for model
-gl_ak_combined_df <- rbind(greenland_df, alaska_df) %>%
-  # Deleted last column because of NA and 0 values
-  select(-1883)
+gl_ak_combined_df <- rbind(greenland_df, alaska_df)
