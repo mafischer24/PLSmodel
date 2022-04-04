@@ -5,59 +5,47 @@ library(pls)
 ##building differnt models to test out:
 # model 1
 ##greenland data only: full spectrum
+#Greenland un-intropolated + full spectrum
 wetChemAbsorbance <- read_csv("csvFiles/wetChemAbsorbance.csv") %>%
   select(-1, -X1)
-greenlandPLS <- plsr(BSiPercent~., ncomp =10, data=wetChemAbsorbance, validation = "CV", segments = 10)
-
+greenlandPLS <- plsr(BSiPercent~., ncomp =10, data=wetChemAbsorbance,
+                     validation = "CV", segments = 10)
 summary(greenlandPLS)
 
-#testing the modle with alaska data (not working, why? missing varbile V188, how to fix??)
-predict(greenlandPLS, akWetChemAbsorbance%>%select(-1))
-predplot(greenlandPLS, ncomp = 4, newdata =  akWetChemAbsorbance, asp = 1, line = TRUE)
-
-##intopolated greenland data only: (data set found in interpolation.R, maybe we should write to csv in file )
-
+##intopolated greenland only data :
 ##having errors with this one if i change ncomp=10 or segements =10 ?
-greenlandPLS_interp <- plsr(BSi~., ncomp =6, data=gl_interp, validation = "CV", segments = 5)
+greenlandPLS_interp <- plsr(BSi~., ncomp =10, data= greenland_df, validation = "CV", segments = 10)
 
-summary(greenlandPLS_interp) #RMSE is larger than w/o interpolation
+summary(greenlandPLS_interp) #RMSE is smaller here with interpolation
+
+#testing the greenland model with alaska data
+predict(greenlandPLS_interp, alaska_df%>%select(-1))
+predplot(greenlandPLS_interp, ncomp = 3, newdata =  alaska_df, asp = 1, line = TRUE)
+
 
 # model 2
 #alaska only
 
-akWetChemAbsorbance <- read_csv("csvFiles/AlaskaWetChemAbsorbance.csv") %>%
-  column_to_rownames(var="dataset")
-
-#why is there NA rows?
-akWetChemAbsorbance <- na.omit(akWetChemAbsorbance)
-alaskaPLS <- plsr(BSiPercent~., ncomp = 10, data=akWetChemAbsorbance, validation = "CV", segments = 10)
+alaska_df <- na.omit(alaska_df)
+alaskaPLS <- plsr(BSiPercent~., ncomp = 10, data=alaska_df, validation = "CV", segments = 10)
 summary(alaskaPLS)
 
 #predicting using geenland data
-predict(alaskaPLS, wetChemAbsorbance%>%select(-1))
-predplot(alaskaPLS, ncomp = 4, newdata =  wetChemAbsorbance, asp = 1, line = TRUE)
+predict(alaskaPLS, greenland_df%>%select(-1))
+predplot(alaskaPLS, ncomp = 4, newdata =  greenland_df, asp = 1, line = TRUE)
 
 #model 3
-# joining alaska +  interpolated greenland
+# using alaska +  interpolated greenland data
 #extract col names of one df
-colName <- colnames(gl_interp)
 
-ak_wetChemAbs_transposed <- akWetChemAbsorbance
-#change column names to be able to rbind
-colnames(ak_wetChemAbs_transposed) <- colName
-#stack the two the dataframes
-akGL_wetChemAbs <- rbind(gl_interp, ak_wetChemAbs_transposed) %>%
-  #I also deleted the last column becuase it has NA values for most at wavenumber 368.38622
-  select(-1883)
+akGLpls <- plsr(BSi~., ncomp = 10, data=gl_ak_combined_df, validation = "CV", segments = 10)
 
-akGLpls <- plsr(BSi~., ncomp = 10, data=akGL_wetChemAbs, validation = "CV", segments = 10)
-
-summary(akGLpls) # best results so far
+summary(akGLpls) # best results so far # why did it drop from 3.99 to 3.97??
 
 #model 4
 # only considering one interval
 #names(akGL_wetChemAbs %>% select(contains(`1282.60124`)))
-akGL_wetChemAbs_1050_1280 <- akGL_wetChemAbs %>%
+akGL_wetChemAbs_1050_1280 <- gl_ak_combined_df %>%
   select(BSi, `1049.22567`:`1282.60124`)
 
 akGLpls_1050 <- plsr(BSi~., ncomp = 10, data=akGL_wetChemAbs_1050_1280, validation = "CV", segments = 10)
@@ -70,7 +58,7 @@ summary(akGLpls_1050)
 #790 - 830cm-1
 #1050 - 1280cm-1
 
-akGL_wetChemAbs_intervals <- akGL_wetChemAbs %>%
+akGL_wetChemAbs_intervals <- gl_ak_combined_df %>%
   select(BSi, `1049.22567`:`1282.60124`,`433.96282`:`480.25219`,`788.84798`:`831.2799`  )
 
 akGLpls_intervals <- plsr(BSi~., ncomp = 10, data=akGL_wetChemAbs_intervals, validation = "CV", segments = 10)
