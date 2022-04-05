@@ -7,12 +7,12 @@ source('R/interpolation.R')
 
 # Greenland dataframe ready for model
 greenland_df <- interpolate_greenland() %>%
-    # Deleted last column because of NA and 0 values
-    select(-1883)
+  # Deleted last column because of NA and 0 values
+  select(-1883)
 
-  # Generate Alaska dataframe
+# Generate Alaska dataframe
 
-  generate_alaska <- function(){
+generate_alaska <- function(){
   # First need to load list of sample names
   fname <- list.files("Samples/alaska_csv", full.names = T)
 
@@ -42,14 +42,14 @@ greenland_df <- interpolate_greenland() %>%
   # After this Vivienne didn't "trust" it to store the names so she added them as a column..
   # Something we should worry about? It's because detaching to create absorbance matrix...
 
-    # This is Vivienne's function dropNames
-    # Don't know if we need the following line
-    #wavenumber_df$dataset <- names(filelist) ## make this a specific column, don't trust it to store
-    # Rename column header from "wavenumbers" to "Vi" (FUNCTION #3)
-    dropNames <- function(data) {
-      names(data) <- paste("V", 1:ncol(data), sep = "")
-      return(data)
-    }
+  # This is Vivienne's function dropNames
+  # Don't know if we need the following line
+  #wavenumber_df$dataset <- names(filelist) ## make this a specific column, don't trust it to store
+  # Rename column header from "wavenumbers" to "Vi" (FUNCTION #3)
+  dropNames <- function(data) {
+    names(data) <- paste("V", 1:ncol(data), sep = "")
+    return(data)
+  }
 
   # creating new list of df where there aren't any wavenumbers...only absorbance values [1:3697]
   absorbance_matrix <- map(reformattedData, dropNames)
@@ -78,8 +78,6 @@ greenland_df <- interpolate_greenland() %>%
     select(-1883)
 
   alaska_df[81,1] <- 23
-
-  return(alaska_df)
 }
 
 alaska_df <- generate_alaska()
