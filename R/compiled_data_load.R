@@ -78,6 +78,8 @@ generate_alaska <- function(){
     select(-1883)
 
   alaska_df[81,1] <- 23
+
+  return(alaska_df)
 }
 
 alaska_df <- generate_alaska()
