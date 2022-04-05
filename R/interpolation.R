@@ -78,4 +78,4 @@ interpolate_greenland <- function(x) {
 }
 
 # Proof of concept:
-gl_interp <- interpolate_greenland()
+#gl_interp <- interpolate_greenland()
