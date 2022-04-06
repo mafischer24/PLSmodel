@@ -7,8 +7,8 @@ library(tidyverse)
 # Generate dataframe by importing data load script
 source('R/compiled_data_load.R')
 
-alaska_df <- generate_alaska() %>%
-  head(-3)
+alaska_df_toc <- na.omit(generate_alaska()) %>%
+  rownames_to_column(var = "sample")
 
 # Think this could be just in the compiled_data_load.R, all we
 # have to do is not delete the toc column
@@ -28,7 +28,8 @@ names(alaska_wet_chem_toc)[2] <- "toc"
 
 
 
-alaska_df$toc <- alaska_wet_chem_toc$toc
+alaska_df_toc <- inner_join(alaska_df_toc,alaska_wet_chem_toc )
+
 
 alaska_df <- alaska_df %>%
   select(toc, everything())
