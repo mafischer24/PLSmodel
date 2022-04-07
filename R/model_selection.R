@@ -27,7 +27,7 @@ greenland_df <- greenland_df %>%
   select(-last_col())
 
 # This name's character salad, just a rename here
-combined_df <- gl_ak_combined_df
+combined_df <- gl_ak_combined_df[1:128,]
 rm(gl_ak_combined_df)
 
 # Setting the target outputs
