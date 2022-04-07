@@ -1,5 +1,5 @@
 # intopolating alaska
-
+# only to be run once but if you have the files you do not need to run!
 source('R/interpolation.R')
 
 fname <- c("Samples/alaska_csv/AW-73 (8_31_16).0.csv",
