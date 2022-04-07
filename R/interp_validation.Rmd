@@ -70,3 +70,85 @@ listed <- lapply(filelist, interp_diff)
 # and the max individual error for each interpolation style
 list_df <- as.data.frame(do.call(rbind, listed))
 ```
+
+```{r interpolation model setup}
+source('R/compiled_data_load.R')
+library(pls)
+
+# For MSE function not tied to a model
+library(Metrics)
+
+# Removing all the extraneous files we created in that file. Maybe want to do this
+# in that file instead of this one, but we can talk about that
+rm(absorbance_df, absorbance_matrix, AK_wav, akWetChemAbsorbance, alaska_wet_chem,
+   reformattedData, wavenumber_df, wavenumber_matrix, fname)
+
+
+# Removing the glitched 368 wavenumber col, it's not in the combined df
+alaska_df <- alaska_df %>%
+  select(-last_col())
+greenland_df <- greenland_df %>%
+  select(-last_col())
+
+# This name's character salad, just a rename here
+combined_df <- gl_ak_combined_df[1:128,]
+rm(gl_ak_combined_df)
+
+# Setting the target outputs
+alaska_actual = alaska_df$BSi
+greenland_actual = greenland_df$BSi
+both_actual <- combined_df$BSi
+
+```
+
+
+```{r}
+basePLS <- plsr(BSi~., ncomp =10, data=combined_df, validation = "CV", segments = 10)
+# Prediction Vector
+predictions_base <- as.data.frame(predict(basePLS, combined_df%>%select(-1)))$`BSi.10 comps`
+
+mae_base <- mae(both_actual, predictions_base)
+mse_base <- mse(both_actual, predictions_base)
+
+```
+
+```{r interpolation}
+ak_wavenumbers <- read_csv("Samples/alaska_csv/AS-01\ (8_24_16).0.csv")$wavenumber
+
+interp_round <- function(df) {
+  ak_rounded <- round(ak_wavenumbers, digits = 0)
+  interpolated_round <- interpolate(df$wavenumber, df$absorbance, ak_rounded)
+  colnames(interpolated_round) <- c('wavenum_round', 'abs_round')
+  return(interpolated_round$abs_round)
+}
+
+round_list <- lapply(filelist, interp_round)
+rounded_df <- as.data.frame(do.call(rbind, round_list))
+colnames(rounded_df) <- ak_rounded
+
+
+fname_ak <- list.files("Samples/alaska_csv", full.names = T)
+filelist_ak <- lapply(fname_ak, function(x){suppress_messages(read_csv(x))})
+# AK Sample names get lost. However, it's 11pm and I do not care right now. 
+
+round_list_ak <- lapply(filelist_ak, interp_round)
+rounded_df_ak <- as.data.frame(do.call(rbind, round_list_ak))
+colnames(rounded_df_ak) <- ak_rounded
+
+rounded_df <- rbind(rounded_df, rounded_df_ak)
+rounded_df$BSi <- combined_df$BSi
+rounded_df <- rounded_df %>%
+  select(BSi, everything()) %>%
+  select(-`368`)
+```
+
+```{r}
+interpPLS <- plsr(BSi~., ncomp =10, data=rounded_df, validation = "CV", segments = 10)
+
+predictions_int <- as.data.frame(predict(interpPLS, rounded_df%>%select(-1)))$`BSi.10 comps`
+
+mae_int <- mae(both_actual, predictions_int)
+mse_int <- mse(both_actual, predictions_int)
+#. . . Fine
+```
+
