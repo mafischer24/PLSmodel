@@ -21,9 +21,9 @@ library(varEst)
 
 ```{r}
 
-test_model <- akGLpls
-df_used <-  akGL_wetChemAbs
-actual_bsi_only <- akGL_wetChemAbs$BSi
+test_model <- alaskaPLS
+df_used <-  alaska_df
+actual_bsi_only <- alaska_df$BSi
 ```
 
 # decide on number of components: 
@@ -38,7 +38,7 @@ Plot to see how the regression coefficients are different based on the number of
 
 ```{r}
 #choose a range for the number of components (ncomp) based or just one
-plot(test_model, plottype = "coef", ncomp=c(1:6), legendpos = "topright")
+plot(test_model, plottype = "coef", ncomp=c(1:6), legendpos = "bottomleft")
 ```
 ## grid search 
 a tool to search for the best predictive performance that can be used to tune the 'ncomp' hyperparameter. This uses a training, testing and validation sets, so it redefines the model 
@@ -135,7 +135,6 @@ plot(test_model, plottype = "scores", comps = selected_ncomp)
 ## Cross-validated predictions
 ```{r}
 plot(test_model, ncomp = 1:7, asp = 1, line = TRUE)
-
 ```
 
 ## R^2: 
