@@ -30,7 +30,7 @@ interpolate_greenland <- function(x) {
   names(filelist) <- gsub(".*/(.*)\\..*", "\\1", fname)
 
   # Removing the redundant index variable
-  filelist <- lapply(filelist, function(x){select(x, wavenumber, absorbance)})
+  filelist <- lapply(filelist, function(x){dplyr::select(x, wavenumber, absorbance)})
 
   # Getting the Alaska wavenumbers: (They're all the same across all AK samples. Yes, I checked.)
   AK_wav <- read_csv("Samples/alaska_csv/AS-01\ (8_24_16).0.csv")
@@ -41,7 +41,7 @@ interpolate_greenland <- function(x) {
   interpolated_greenland <- lapply(filelist, function(x){interpolate(x$wavenumber, x$absorbance, ak_wavenumbers)})
 
   # Selecting only the absorbance vector from each list; interpolation returns a df of both abs and wavenumber
-  interp_gl <- lapply(interpolated_greenland, function(x){select(x,absorbance)})
+  interp_gl <- lapply(interpolated_greenland, function(x){dplyr::select(x,absorbance)})
 
   # Binding it all into a data frame columnwise (each column one sample, rows being absorbance values)
   interp_df <- as.data.frame(do.call(cbind, interp_gl))

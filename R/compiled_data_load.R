@@ -8,7 +8,7 @@ source('R/interpolation.R')
 # Greenland dataframe ready for model
 greenland_df <- interpolate_greenland() %>%
   # Deleted last column because of NA and 0 values
-  select(-1883)
+  dplyr::select(-1883)
 
 # Generate Alaska dataframe
 
@@ -25,7 +25,7 @@ generate_alaska <- function(){
   # select the columns we want
   filelist <- map(filelist, function(x) {
     x %>%
-      select(wavenumber, absorbance)
+      dplyr::select(wavenumber, absorbance)
   })
 
   # Make the columns names the wavenumbers and the values the absorbance values
@@ -63,7 +63,7 @@ generate_alaska <- function(){
 
   alaska_wet_chem <- read_csv("Maxwell-Alaska Samples  - Final Top 100.csv") %>%
     janitor::clean_names() %>%
-    select(-notes, -toc_percent)
+    dplyr::select(-notes, -toc_percent)
 
   names(alaska_wet_chem)[2] <- "BSi"
 
@@ -72,10 +72,10 @@ generate_alaska <- function(){
 
   # Alaska dataframe ready for model
   alaska_df <- full_join(absorbance_df, alaska_wet_chem, by = "sample") %>%
-    select(BSi, everything()) %>%
+    dplyr::select(BSi, everything()) %>%
     column_to_rownames(var = "sample")%>%
     # Deleted last column because  0 values
-    select(-1883)
+    dplyr::select(-1883)
 
   alaska_df[81,1] <- 23
 

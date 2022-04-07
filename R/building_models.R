@@ -19,7 +19,7 @@ greenlandPLS_interp <- plsr(BSi~., ncomp =10, data= greenland_df, validation = "
 summary(greenlandPLS_interp) #RMSE is smaller here with interpolation
 
 #testing the greenland model with alaska data
-predict(greenlandPLS_interp, alaska_df%>%select(-1))
+predict(greenlandPLS_interp, alaska_df%>%dplyr::select(-1))
 predplot(greenlandPLS_interp, ncomp = 3, newdata =  alaska_df, asp = 1, line = TRUE)
 
 
@@ -31,7 +31,7 @@ alaskaPLS <- plsr(BSi~., ncomp = 10, data=alaska_df, validation = "CV", segments
 summary(alaskaPLS)
 
 #predicting using geenland data
-predict(alaskaPLS, greenland_df%>%select(-1))
+predict(alaskaPLS, greenland_df%>%dplyr::select(-1))
 predplot(alaskaPLS, ncomp = 4, newdata =  greenland_df, asp = 1, line = TRUE)
 
 #model 3
