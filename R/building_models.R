@@ -26,8 +26,8 @@ predplot(greenlandPLS_interp, ncomp = 3, newdata =  alaska_df, asp = 1, line = T
 # model 2
 #alaska only
 
-alaska_df <- na.omit(alaska_df)
-alaskaPLS <- plsr(BSiPercent~., ncomp = 10, data=alaska_df, validation = "CV", segments = 10)
+alaska_df <- na.omit(generate_alaska())
+alaskaPLS <- plsr(BSi~., ncomp = 10, data=alaska_df, validation = "CV", segments = 10)
 summary(alaskaPLS)
 
 #predicting using geenland data
