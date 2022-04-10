@@ -16,26 +16,18 @@ alaska_df_toc <- na.omit(generate_alaska()) %>%
 # separate for now
 alaska_wet_chem_toc <- read_csv("Maxwell-Alaska Samples  - Final Top 100.csv") %>%
   janitor::clean_names() %>%
-  select(-notes, -b_si_percent) %>%
-  filter(sample != "AW-7.5 (8_31_16).0",
-         sample != "AW-34.5 (8_31_16).0")
-         #,
-         # sample != "AW-73 (8_31_16).0")
-         # something is weird here because none of these samples
-         # are included, but the # of rows won't match
+  select(-notes, -b_si_percent)
 
 names(alaska_wet_chem_toc)[2] <- "toc"
 
 
 
-alaska_df_toc <- inner_join(alaska_df_toc,alaska_wet_chem_toc )
+alaska_df_toc <- inner_join(alaska_df_toc, alaska_wet_chem_toc )
 
 
 alaska_df <- alaska_df %>%
   select(toc, everything())
-# not sure that the toc col matches up with the sample
-# major concern to check!!!
-# !!!!!!
+
 
 # Build pls model to predict TOC instead of BSi
 alaska_toc_mod <- plsr(toc~., ncomp = 10, data = alaska_df, validation = "CV", segments = 10)
