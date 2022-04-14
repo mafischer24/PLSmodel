@@ -7,7 +7,7 @@ library(pls)
 ##greenland data only: full spectrum
 #Greenland un-intropolated + full spectrum
 wetChemAbsorbance <- read_csv("csvFiles/wetChemAbsorbance.csv") %>%
-  select(-1, -X1)
+  select(-3)
 greenlandPLS <- plsr(BSiPercent~., ncomp =10, data=wetChemAbsorbance,
                      validation = "CV", segments = 10)
 summary(greenlandPLS)

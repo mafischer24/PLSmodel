@@ -8,6 +8,8 @@ library(janitor)
 library(gbm)
 library(purrr)
 set.seed(1)
+
+source('R/compiled_data_load.R')
 #fig 1
 #quartz vs diatoms vs lake sample spectra ( what kind of data are we looking at? )
 # what is ss?  sea sand
@@ -465,7 +467,7 @@ ggplot(all_data, aes(x = Wavenumber, y= Absorbance, color = BSi, group = sample)
 
 #fig 12
 pre_interp <- read_csv("Samples/greenland_csv/FISK-10.0.csv") %>%
-  select(-X1) %>%
+  select(-3) %>%
   mutate(status = "Before")
 post_interp <- greenland_df[c("FISK-10.0"),] %>%
   select(-BSi) %>%
