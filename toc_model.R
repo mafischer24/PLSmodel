@@ -22,15 +22,15 @@ names(alaska_wet_chem_toc)[2] <- "toc"
 
 
 
-alaska_df_toc <- inner_join(alaska_df_toc, alaska_wet_chem_toc )
+alaska_df_toc <- inner_join(alaska_df_toc, alaska_wet_chem_toc,by="sample" )
 
 
-alaska_df <- alaska_df %>%
+alaska_df_toc <- alaska_df_toc %>%
   select(toc, everything())
 
 
 # Build pls model to predict TOC instead of BSi
-alaska_toc_mod <- plsr(toc~., ncomp = 10, data = alaska_df, validation = "CV", segments = 10)
+alaska_toc_mod <- plsr(toc~., ncomp = 10, data = alaska_df_toc, validation = "CV", segments = 10)
 summary(alaska_toc_mod)
 
 #### Greenland TOC template
