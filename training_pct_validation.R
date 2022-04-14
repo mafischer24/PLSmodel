@@ -1,7 +1,7 @@
 library(tidyverse)
 library(Metrics)
 library(pls)
-source("R/compiled_data_load.R")
+suppressWarnings({source("R/compiled_data_load.R")})
 
 gl_ak_df <- gl_ak_combined_df %>%
   filter(!is.na(BSi))
@@ -37,10 +37,10 @@ for (i in 1:10) {
     # For each n component in the model
     for(n in 1:10) {
       # Calculate MSE against the test set
-      mse <- mse(as.numeric(predictions[,n]), testing$BSi)
+      rmse <- sqrt(mse(as.numeric(predictions[,n]), testing$BSi))
 
       #add it to its spot
-      full_list[i,perc,n] <- mse
+      full_list[i,perc,n] <- rmse
     }
   }
   # Progress indicator so I don't go insane
@@ -59,12 +59,22 @@ mses_by_perc <- as.data.frame(vecs_list) %>%
 colnames(mses_by_perc) <- c("p_010","p_020",'p_030','p_040','p_050','p_060','p_070','p_080','p_090','p_100','ncomps')
 
 plot_df <- mses_by_perc %>%
-  pivot_longer(cols = p_010:p_100, names_to = "percent")
+  pivot_longer(cols = p_010:p_100, names_to = "percent") %>%
+  mutate(percent = case_when(percent == "p_010" ~ "10%",
+                             percent == "p_020" ~ "20%",
+                             percent == "p_030" ~ "30%",
+                             percent == "p_040" ~ "40%",
+                             percent == "p_050" ~ "50%",
+                             percent == "p_060" ~ "60%",
+                             percent == "p_070" ~ "70%",
+                             percent == "p_080" ~ "80%",
+                             percent == "p_090" ~ "90%",
+                             percent == "p_100" ~ "Full",))
 
 ggplot(plot_df, aes(x = ncomps, y = value, color = percent)) + geom_line() +
   scale_color_brewer(palette = "RdYlBu") + theme_bw() +
   xlab("Number of Components") +
-  ylab("MSE Value") +
-  ggtitle("Mean Squared Error by Number of Components") +
+  ylab("RMSE Value") +
+  ggtitle("Root Mean Squared Error by Number of Components") +
   labs(color = "Training Data %")
 
