@@ -13,29 +13,17 @@ source('R/compiled_data_load.R')
 #fig 1
 #quartz vs diatoms vs lake sample spectra ( what kind of data are we looking at? )
 # what is ss?  sea sand
-SS <- greenland_df[c("SS.0"),] %>%
-  select(-BSi) %>%
-  pivot_longer(everything(), names_to = "wavenumber", values_to = "absorbance") %>%
-  mutate(wavenumber = as.numeric(wavenumber))
 
 WQ <- greenland_df[c("WQ.0"),] %>%
   select(-BSi) %>%
   pivot_longer(everything(), names_to = "wavenumber", values_to = "absorbance") %>%
   mutate(wavenumber = as.numeric(wavenumber))
 
-DB <- read.table("~/Downloads/DB 7 [2].0.dpt")
-names(DB)[1] <- "wavenumber"
-names(DB)[2] <- "absorbance"
-DB <- DB %>%
-  mutate(wavenumber = as.numeric(wavenumber))
 
-DB <- read.table("~/Downloads/DB 7 [2].0 (1).dpt", sep = " ") %>%
+DB <- read.table("~/PLSmodel/DB 7 [2].0 (1).dpt", sep = " ") %>%
   separate(col = "V1", into = c("wavenumber", "absorbance"),
            convert = TRUE, sep = "[[:space:]]")
 
-DE <- read.table("~/Downloads/DE 2.0.dpt", sep = " ") %>%
-  separate(col = "V1", into = c("wavenumber", "absorbance"),
-           convert = TRUE, sep = "[[:space:]]")
 # where is the diatom data
 #random lake sample
 #435 - 480cm-1
@@ -459,7 +447,7 @@ all_data <- gl_ak_combined_df %>%
   mutate(Wavenumber = as.numeric(Wavenumber))
 all_data <- as.data.frame(all_data)
 
-ggplot(all_data, aes(x = Wavenumber, y= Absorbance, color = BSi, group = sample), alpha = 0.8) +
+fig11 <- ggplot(all_data, aes(x = Wavenumber, y= Absorbance, color = BSi, group = sample), alpha = 0.8) +
   geom_line()+
   facet_wrap(~region) +
   scale_color_continuous(type = "viridis")+
@@ -467,8 +455,9 @@ ggplot(all_data, aes(x = Wavenumber, y= Absorbance, color = BSi, group = sample)
 
 #fig 12
 pre_interp <- read_csv("Samples/greenland_csv/FISK-10.0.csv") %>%
-  select(-3) %>%
+  select(-1) %>%
   mutate(status = "Before")
+
 post_interp <- greenland_df[c("FISK-10.0"),] %>%
   select(-BSi) %>%
   pivot_longer(everything(), names_to = "wavenumber", values_to = "absorbance") %>%
@@ -476,7 +465,7 @@ post_interp <- greenland_df[c("FISK-10.0"),] %>%
 
 fisk <- rbind(pre_interp, post_interp)
 
-ggplot(fisk, aes(x = wavenumber, y = absorbance))+
+fig12 <- ggplot(fisk, aes(x = wavenumber, y = absorbance))+
   geom_point() +
   facet_wrap(~status)+
   ylab("Absorbance") +

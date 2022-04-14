@@ -76,6 +76,16 @@ output: rticles::mdpi_article
 ```{r setup, include = FALSE}
 knitr::opts_knit$set(root.dir = "../../")
 ```
+
+```{r, echo = FALSE, message = FALSE, include = FALSE}
+source('R/compiled_data_load.R')
+```
+
+```{r, echo = FALSE, message = FALSE, include = FALSE}
+source('R/poster_plots.R')
+```
+
+
 <!-- # Version -->
 
 <!-- This Rmd-skeleton uses the mdpi Latex template published 2019/02.  -->
@@ -96,7 +106,7 @@ The goal of this project is to create an interface where a user can input their 
 The model runs on spectroscopy data gathered from the analysis of lake bed samples. 26 samples are from Greenland, 100 are from Alaska, and two are specially made calibration samples. Each sample has two dimensions: a list of wavelengths tested, and a corresponding list of absorbance values measuring the sample’s absorbance of that specific wavelength of light (figure \ref{fig:fig1}). Each sample also has a single associated measurement of biogenic silica, calculated by traditional wet chemistry. 
 
 ```{r fig1, echo = FALSE, out.width= "85%", fig.cap = "Example showing two samples' absorbance values across the spectrum of wavelengths, illustrating the typical ranges of the spectrum for biogenic silica (BSi) and TOC (Total organic carbon).", fig.align='center'}
-#knitr::include_graphics("paper_files/final_paper_draft/fig1.png")
+fig1
 ```
 
 The Greenland samples were tested at 3,697 wavelengths, from 368 cm^{-1} to 7497 cm^{-1}, while the Alaska samples were tested at 1,882 wavelengths from 368 cm^{-1} to 3996 cm^{-1}. The relationship between absorbance and wavelength is smooth for all samples between the wavelengths of 500 cm^{-1} and 4000 cm^{-1}, though below 500 cm^{-1} and above 4000 cm^{-1} the line shows increased noise, with the noise being the worst at the highest wavenumbers. This is evident in figure \ref{fig:fig2}, and even more notably in the higher wavenumbers of the wet quartz data in figure \ref{fig:fig3}. 
