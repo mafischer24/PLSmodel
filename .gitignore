@@ -1,7 +1,5 @@
 .Rproj.user
-<<<<<<< HEAD
-=======
 .Rhistory
 .RData
 .Ruserdata
->>>>>>> 921e936713d48563a79ad57349c2a73ed7e962ba
+.DS_Store
