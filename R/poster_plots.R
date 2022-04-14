@@ -11,12 +11,14 @@ set.seed(1)
 #fig 1
 #quartz vs diatoms vs lake sample spectra ( what kind of data are we looking at? )
 # what is ss?  sea sand
-SS <- reformattedData$`SS.0` %>%
+SS <- greenland_df[c("SS.0"),] %>%
+  select(-BSi) %>%
   pivot_longer(everything(), names_to = "wavenumber", values_to = "absorbance") %>%
   mutate(wavenumber = as.numeric(wavenumber))
 
-WQ <- reformattedData$`WQ.0` %>%
-  pivot_longer(everything(), names_to = "wavenumber", values_to = "absorbance")%>%
+WQ <- greenland_df[c("WQ.0"),] %>%
+  select(-BSi) %>%
+  pivot_longer(everything(), names_to = "wavenumber", values_to = "absorbance") %>%
   mutate(wavenumber = as.numeric(wavenumber))
 
 DB <- read.table("~/Downloads/DB 7 [2].0.dpt")
@@ -63,8 +65,8 @@ fig1 <- ggplot() +
   labs(colour="Sample",
        fill = "Correlated Peaks") +
   theme_bw()+
-  scale_color_manual( values = c( "Washed Qaurtz (No BSi)" ="black",
-                                  "High BSi and TOC Sample"="darkgreen")) +
+  scale_color_manual( values = c( "Washed Qaurtz With No BSi" ="black",
+                                  "Diatoms With High BSi and TOC"="darkgreen")) +
   scale_fill_manual(values = c( "BSi Range"="orange","TOC Range"="yellow")) +
   theme(legend.position = "bottom",
         legend.text=element_text(size=8), legend.box="vertical", legend.margin=margin())
@@ -444,4 +446,42 @@ for(i in 1:28){
   print(paste("calibration df output", wet_chem_data[i,] ))
   print("___________________________________")
 }
+
+#figure 11
+region <- c(rep("GL", 28), rep("AK", 103))
+
+all_data <- gl_ak_combined_df %>%
+  mutate(region = region) %>%
+  rownames_to_column(var = "sample") %>%
+  pivot_longer(cols = 3:1883, names_to = "Wavenumber", values_to = "Absorbance") %>%
+  mutate(Wavenumber = as.numeric(Wavenumber))
+all_data <- as.data.frame(all_data)
+
+ggplot(all_data, aes(x = Wavenumber, y= Absorbance, color = BSi, group = sample), alpha = 0.8) +
+  geom_line()+
+  facet_wrap(~region) +
+  scale_color_continuous(type = "viridis")+
+  theme_bw()
+
+#fig 12
+pre_interp <- read_csv("Samples/greenland_csv/FISK-10.0.csv") %>%
+  select(-X1) %>%
+  mutate(status = "Before")
+post_interp <- greenland_df[c("FISK-10.0"),] %>%
+  select(-BSi) %>%
+  pivot_longer(everything(), names_to = "wavenumber", values_to = "absorbance") %>%
+  mutate(wavenumber = as.numeric(wavenumber), status = "After")
+
+fisk <- rbind(pre_interp, post_interp)
+
+ggplot(fisk, aes(x = wavenumber, y = absorbance))+
+  geom_point() +
+  facet_wrap(~status)+
+  ylab("Absorbance") +
+  xlab(expression(paste("Wavenumber ", cm^{-1}))) +
+  annotate(geom = "rect", xmin=4000, xmax=Inf, ymin= - Inf, ymax=Inf,
+           fill = "red", alpha = 0.1)+
+   ggtitle("Example Sample Spectrum")
+
+
 
