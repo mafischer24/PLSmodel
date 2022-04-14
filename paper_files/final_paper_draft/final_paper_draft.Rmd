@@ -108,25 +108,21 @@ The goal of this project is to create an interface where a user can input their 
 
 The model runs on spectroscopy data gathered from the analysis of lake bed samples. 26 samples are from Greenland, 100 are from Alaska, and two are specially made calibration samples. Each sample has two dimensions: a list of wavelengths tested, and a corresponding list of absorbance values measuring the sample's absorbance of that specific wavelength of light (figure \ref{fig:fig1}). Each sample also has a single associated measurement of biogenic silica, calculated by traditional wet chemistry.
 
-```{r fig1, echo = FALSE, out.width= "85%", fig.cap = "Example showing two samples' absorbance values across the spectrum of wavelengths, illustrating the typical ranges of the spectrum for biogenic silica (BSi) and TOC (Total organic carbon).", fig.align='center'}
-#fig1
+```{r fig1, echo = FALSE,  fig.cap = "Comparison between absorbance values across the spectrum of wavelength for two calibration samples, one of pure diatoms, which have high biogenic silica (BSi) and total organic carbon (TOC) content, and one of washed quartz which has no BSi or TOC. Highlighted areas are ranges that correlate with BSi (in orange) and TOC (in yellow). The area under those peaks is what is usually reported in literature.", fig.align='center'}
+fig1
 ```
 
 The Greenland samples were tested at 3,697 wavelengths, from 368 cm\^{-1} to 7497 cm\^{-1}, while the Alaska samples were tested at 1,882 wavelengths from 368 cm\^{-1} to 3996 cm\^{-1}. The relationship between absorbance and wavelength is smooth for all samples between the wavelengths of 500 cm\^{-1} and 4000 cm\^{-1}, though below 500 cm\^{-1} and above 4000 cm\^{-1} the line shows increased noise, with the noise being the worst at the highest wavenumbers. This is evident in figure \ref{fig:fig2}, and even more notably in the higher wavenumbers of the wet quartz data in figure \ref{fig:fig3}.
 
-```{r fig2, echo = FALSE, out.width= "80%", fig.align='center', fig.cap = "The wavelength spectrum for a sample containing a high BSi content showing disruption of the smooth line of absorbance values below 500 $cm^{-1}$ and above 400 $cm^{-1}$."}
-#knitr::include_graphics("NANDB-4-highBSI.png")
+```{r fig2, echo = FALSE, fig.align='center', fig.cap = "Each sample’s spectrum is plotted here by region and color coded with actual biogenic silica (BSi) where dark blue colors are samples with low BSi and yellow denotes high BSi."}
+fig11
 ```
 
-```{r fig3, echo = FALSE, out.width= "80%", fig.align='center', fig.cap = "The wavelength spectrum for a Wet Quartz sample containing a lower BSi content, which shows even more disruption of the smooth line below 500 $cm^{-1}$ and above 400 $cm^{-1}$."}
-#knitr::include_graphics("WQ-lowBSi.png")
+```{r fig3, echo = FALSE,  fig.align='center', fig.cap = "A closer look at the Absorbance spectrum of a random sample from Greenland shows that the raw data (Before) has a lot of noise in wavenumbers above 4000 $cm^{-1}$, which is consistent throughout all samples. After truncating the spectrum and interpolating the Greenland data (After) there were no observable changes."}
+fig12
 ```
 
     The Greenland samples and the Alaskan samples were analyzed at different times with slightly different spectroscopy settings, so the wavelengths measured do not match exactly. The difference is small to the point of negligence, but the regression model requires the wavelength labels to be consistent. In addition, the Alaskan samples were analyzed on a much smaller range of wavelengths than the Greenland samples, though the resolution was about the same. To solve both problems at once, we linearly interpolate the absorbance curve from each Greenland sample to match the wavelengths of the Alaskan samples, as those do not vary. The absorbance curves from both samples were high enough resolution and the differences in wavelengths measured were small enough that we are comfortable that this did not meaningfully alter the data in any way, besides to make it all fit seamlessly in the same model. These minute differences in wavelengths is seen in figure \ref{fig:fig4}, where the interpolated data (red) is mapped on top of the original data (black). Since the black points are obscured behind the red dots, we see that the differences in wavenumbers is negligible. 
-
-```{r fig4, echo = FALSE, out.width= "80%", fig.align='center', fig.cap = "Absorbance values shown across an interpolated wavelength spectrum (red) plotted on top of the absorbance values across the original empirical wavelength numbers (black). We only see a trace of the black beneath the red, indicating the accuracy of the interpolation of the high resolution data."}
-#knitr::include_graphics("interpolation.png")
-```
 
 <!-- # Materials and Methods -->
 
@@ -137,6 +133,20 @@ The Greenland samples were tested at 3,697 wavelengths, from 368 cm\^{-1} to 749
 <!-- Interventionary studies involving animals or humans, and other studies require ethical approval must list the authority that provided approval and the corresponding ethical approval code. -->
 
 <!-- # Results -->
+
+```{r, echo = FALSE, message = FALSE, include = FALSE}
+source("R/model_selection.R")
+rm(alaskaPLS, combined_PLS, greenlandPLS)
+
+```
+
+```{r, echo = FALSE}
+rownames(scores_df) <- c()
+
+scores_df %>%
+  rename(`Data Trained On` = modeled_on, `Data Tested On` = tested_on, MSE = mse, MAD = mad) %>%
+  knitr::kable()
+```
 
 <!-- This section may be divided by subheadings. It should provide a concise and precise description of the experimental results, their interpretation as well as the experimental conclusions that can be drawn. -->
 
@@ -202,19 +212,7 @@ knitr::kable(x, caption = "caption here, \\label{tab:mytable}")
 
 ```
 
-```{r, echo = FALSE, message = FALSE, include = FALSE}
-source("R/model_selection.R")
-rm(alaskaPLS, combined_PLS, greenlandPLS)
 
-```
-
-```{r, echo = FALSE}
-rownames(scores_df) <- c()
-
-scores_df %>%
-  rename(`Data Trained On` = modeled_on, `Data Tested On` = tested_on, MSE = mse, MAD = mad) %>%
-  knitr::kable()
-```
 
 <!-- table \ref{tab:mytable} above -->
 
