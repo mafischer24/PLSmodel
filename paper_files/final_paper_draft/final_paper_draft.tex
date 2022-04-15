@@ -275,7 +275,7 @@ resolve using linear interpolation and elaborate below.
 
 }
 
-\caption{A closer look at the Absorbance spectrum of a random sample from Greenland shows that the raw data (Before) has a lot of noise in wavenumbers above 4000 $cm^{-1}$, which is consistent throughout all samples. After truncating the spectrum and interpolating the Greenland data (After) there were no observable changes.}\label{fig:fig3}
+\caption{A closer look at the Absorbance spectrum of a random sample from Greenland shows that the raw data (Before) has a lot of noise in wavenumbers above 4000 $cm^{-1}$, which is consistent throughout all samples. After truncating the spectrum and interpolating the Greenland data (After) there were negligible changes.}\label{fig:fig3}
 \end{figure}
 
 \hypertarget{methods}{%
@@ -345,9 +345,11 @@ using 10 components creates a model with the lowest RMSEP. Despite the
 high number of components, our model does not appear to overfit our data
 because it accurately generalizes to new data that was not included in
 the training data. Overall, our final model can be represented as:
-\(\begin{gather} BSi = x_1 + x_2 + . . . + x_{1882} + b \end{gather}\)
+\(\begin{gather*} BSi = x_1 + x_2 + . . . + x_{1882} + b \end{*gather}\)
 where the \(x_n\) variables are the individual wavenumbers and \(b\) is
 the intercept.
+
+\(\include{amsmath}\)
 
 wordcountaddin::text\_stats()
 
