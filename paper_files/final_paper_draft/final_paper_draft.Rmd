@@ -106,17 +106,23 @@ The goal of this project is to create an interface where a user can input their 
 
 # Data
 
-The model runs on spectroscopy data gathered from the analysis of lake bed samples. 26 samples are from Greenland, 100 are from Alaska, and two are specially made calibration samples. Each sample has two dimensions: a list of wavelengths tested, and a corresponding list of absorbance values measuring the sample's absorbance of that specific wavelength of light (figure \ref{fig:fig1}). Each sample also has a single associated measurement of biogenic silica, calculated by traditional wet chemistry.
+Our model is trained on spectroscopy data gathered from the analysis of lake bed samples. 26 samples are from Greenland collected by Greg de Wet, 103 are from Alaska collected by Daryl Kaufman at Northern Arizona University, and samples of only diatoms and only washed quartz. Each pre-processed dataset has two variables: wavenumbers tested, and corresponding absorbance values measuring the sample’s absorbance of that specific wavenumber of light (Figure \ref{fig:fig1}). Each sample also has a single associated measurement of biogenic silica, calculated by traditional wet chemistry digestion methods. 
 
 ```{r fig1, echo = FALSE,  fig.cap = "Comparison between absorbance values across the spectrum of wavelength for two calibration samples, one of pure diatoms, which have high biogenic silica (BSi) and total organic carbon (TOC) content, and one of washed quartz which has no BSi or TOC. Highlighted areas are ranges that correlate with BSi (in orange) and TOC (in yellow). The area under those peaks is what is usually reported in literature.", fig.align='center'}
 fig1
 ```
 
-The Greenland samples were tested at 3,697 wavelengths, from 368 cm\^{-1} to 7497 cm\^{-1}, while the Alaska samples were tested at 1,882 wavelengths from 368 cm\^{-1} to 3996 cm\^{-1}. The relationship between absorbance and wavelength is smooth for all samples between the wavelengths of 500 cm\^{-1} and 4000 cm\^{-1}, though below 500 cm\^{-1} and above 4000 cm\^{-1} the line shows increased noise, with the noise being the worst at the highest wavenumbers. This is evident in figure \ref{fig:fig2}, and even more notably in the higher wavenumbers of the wet quartz data in figure \ref{fig:fig3}.
-
 ```{r fig2, echo = FALSE, fig.align='center', fig.cap = "Each sample’s spectrum is plotted here by region and color coded with actual biogenic silica (BSi) where dark blue colors are samples with low BSi and yellow denotes high BSi."}
 fig11
 ```
+
+The Greenland samples were tested at 3,697 distinct wavenumbers, ranging from 368 $cm^{-1}$ to 7497 $cm^{-1}$, while the Alaska samples were tested at 1,882 distinct wavenumbers ranging from 368 cm^{-1} to 3996 $cm^{-1}$. The relationship between absorbance and wavenumber is smooth for all samples between the wavenumbers of 500 $cm^{-1}$ and 4000 $cm^{-1}$, though below 500 $cm^{-1}$ and above 4000 $cm^{-1}$ the line shows increased noise, with the noise being the worst at the highest wavenumbers. This is evident in figure \ref{fig:fig2}, and even more notably in the higher wavenumbers of the wet quartz data in figure \ref{fig:fig3}. 
+
+The Greenland samples and the Alaskan samples were analyzed at different times with slightly different spectroscopy settings, so the wavenumbers measured do not match exactly. Even though the difference is small, the regression model requires the wavenumber labels to be consistent as they are the explanatory variables in the model. In addition, the Alaskan samples were analyzed on a much smaller range of wavenumbers than the Greenland samples, though the resolution was about the same. Therefore, the two sets of data have a mismatch in the number of columns, which we resolve using linear interpolation and elaborate below.
+
+The Greenland samples were tested at 3,697 wavelengths, from 368 cm\^{-1} to 7497 cm\^{-1}, while the Alaska samples were tested at 1,882 wavelengths from 368 cm\^{-1} to 3996 cm\^{-1}. The relationship between absorbance and wavelength is smooth for all samples between the wavelengths of 500 cm\^{-1} and 4000 cm\^{-1}, though below 500 cm\^{-1} and above 4000 cm\^{-1} the line shows increased noise, with the noise being the worst at the highest wavenumbers. This is evident in figure \ref{fig:fig2}, and even more notably in the higher wavenumbers of the wet quartz data in figure \ref{fig:fig3}.
+
+
 
 ```{r fig3, echo = FALSE,  fig.align='center', fig.cap = "A closer look at the Absorbance spectrum of a random sample from Greenland shows that the raw data (Before) has a lot of noise in wavenumbers above 4000 $cm^{-1}$, which is consistent throughout all samples. After truncating the spectrum and interpolating the Greenland data (After) there were no observable changes."}
 fig12
