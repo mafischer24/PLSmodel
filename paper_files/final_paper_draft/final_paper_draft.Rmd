@@ -120,7 +120,6 @@ The Greenland samples were tested at 3,697 distinct wavenumbers, ranging from 36
 
 The Greenland samples and the Alaskan samples were analyzed at different times with slightly different spectroscopy settings, so the wavenumbers measured do not match exactly. Even though the difference is small, the regression model requires the wavenumber labels to be consistent as they are the explanatory variables in the model. In addition, the Alaskan samples were analyzed on a much smaller range of wavenumbers than the Greenland samples, though the resolution was about the same. Therefore, the two sets of data have a mismatch in the number of columns, which we resolve using linear interpolation and elaborate below.
 
-The Greenland samples were tested at 3,697 wavelengths, from 368 cm\^{-1} to 7497 cm\^{-1}, while the Alaska samples were tested at 1,882 wavelengths from 368 cm\^{-1} to 3996 cm\^{-1}. The relationship between absorbance and wavelength is smooth for all samples between the wavelengths of 500 cm\^{-1} and 4000 cm\^{-1}, though below 500 cm\^{-1} and above 4000 cm\^{-1} the line shows increased noise, with the noise being the worst at the highest wavenumbers. This is evident in figure \ref{fig:fig2}, and even more notably in the higher wavenumbers of the wet quartz data in figure \ref{fig:fig3}.
 
 
 
