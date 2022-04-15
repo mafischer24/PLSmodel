@@ -140,12 +140,12 @@ rm(alaskaPLS, combined_PLS, greenlandPLS)
 
 ```
 
-```{r table1, echo = FALSE, fig.align='center', fig.cap = "Overview of the five different models tested against each data set. The Mean Square Error (MSE) and Mean Absolute Deviation (MAD) were calculated to compare and the model that uses both the Alaska and Greenland full spectrum shows optimal results."}
+```{r tab1, echo = FALSE, tab.align='center', tab.cap = "Overview of the five different models tested against each data set. The Mean Square Error (MSE) and Mean Absolute Deviation (MAD) were calculated to compare and the model that uses both the Alaska and Greenland full spectrum shows optimal results."}
 rownames(scores_df) <- c()
 
 scores_df %>%
   rename(`Data Trained On` = modeled_on, `Data Tested On` = tested_on, MSE = mse, MAD = mad) %>%
-  knitr::kable()
+  knitr::kable(caption = "Overview of the five different models tested against each data set. The Mean Square Error (MSE) and Mean Absolute Deviation (MAD) were calculated to compare and the model that uses both the Alaska and Greenland full spectrum shows optimal results.")
 ```
 
 ```{r, echo = FALSE, message = FALSE, include = FALSE}

@@ -277,15 +277,45 @@ notably in the higher wavenumbers of the wet quartz data in figure
 \caption{A closer look at the Absorbance spectrum of a random sample from Greenland shows that the raw data (Before) has a lot of noise in wavenumbers above 4000 $cm^{-1}$, which is consistent throughout all samples. After truncating the spectrum and interpolating the Greenland data (After) there were no observable changes.}\label{fig:fig3}
 \end{figure}
 
-\begin{verbatim}
-The Greenland samples and the Alaskan samples were analyzed at different times with slightly different spectroscopy settings, so the wavelengths measured do not match exactly. The difference is small to the point of negligence, but the regression model requires the wavelength labels to be consistent. In addition, the Alaskan samples were analyzed on a much smaller range of wavelengths than the Greenland samples, though the resolution was about the same. To solve both problems at once, we linearly interpolate the absorbance curve from each Greenland sample to match the wavelengths of the Alaskan samples, as those do not vary. The absorbance curves from both samples were high enough resolution and the differences in wavelengths measured were small enough that we are comfortable that this did not meaningfully alter the data in any way, besides to make it all fit seamlessly in the same model. These minute differences in wavelengths is seen in figure \ref{fig:fig4}, where the interpolated data (red) is mapped on top of the original data (black). Since the black points are obscured behind the red dots, we see that the differences in wavenumbers is negligible. 
-\end{verbatim}
+The Greenland samples and the Alaskan samples were analyzed at different
+times with slightly different spectroscopy settings, so the wavelengths
+measured do not match exactly. The difference is small to the point of
+negligence, but the regression model requires the wavelength labels to
+be consistent. In addition, the Alaskan samples were analyzed on a much
+smaller range of wavelengths than the Greenland samples, though the
+resolution was about the same. To solve both problems at once, we
+linearly interpolate the absorbance curve from each Greenland sample to
+match the wavelengths of the Alaskan samples, as those do not vary. The
+absorbance curves from both samples were high enough resolution and the
+differences in wavelengths measured were small enough that we are
+comfortable that this did not meaningfully alter the data in any way,
+besides to make it all fit seamlessly in the same model. These minute
+differences in wavelengths is seen in figure \ref{fig:fig4}, where the
+interpolated data (red) is mapped on top of the original data (black).
+Since the black points are obscured behind the red dots, we see that the
+differences in wavenumbers is negligible.
 
 \begin{longtable}[]{@{}
   >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.3288}}
   >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2055}}
   >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2329}}
   >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2329}}@{}}
+\caption{Overview of the five different models tested against each data
+set. The Mean Square Error (MSE) and Mean Absolute Deviation (MAD) were
+calculated to compare and the model that uses both the Alaska and
+Greenland full spectrum shows optimal results.}\tabularnewline
+\toprule
+\begin{minipage}[b]{\linewidth}\raggedright
+Data Trained On
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Data Tested On
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+MSE
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+MAD
+\end{minipage} \\
+\midrule
+\endfirsthead
 \toprule
 \begin{minipage}[b]{\linewidth}\raggedright
 Data Trained On
