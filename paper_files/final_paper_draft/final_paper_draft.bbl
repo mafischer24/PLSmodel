@@ -1,6 +1,10 @@
 \begin{thebibliography}{-------}
 \providecommand{\natexlab}[1]{#1}
 
+\bibitem[Kamat and Schatz(2013)]{kamat2013make}
+Kamat, P.; Schatz, G.C.
+\newblock How to make your next paper scientifically effective,  2013.
+
 \bibitem[Vogel \em{et~al.}(2008)Vogel, Ros{\'e}n, Wagner, Melles, and
   Persson]{vogel2008fourier}
 Vogel, H.; Ros{\'e}n, P.; Wagner, B.; Melles, M.; Persson, P.
@@ -11,5 +15,14 @@ Vogel, H.; Ros{\'e}n, P.; Wagner, B.; Melles, M.; Persson, P.
 \newblock
   \url{https://link-springer-com.libproxy.smith.edu/article/10.1007/s10933-008-9193-7},
   doi:{\changeurlcolor{black}\href{https://doi.org/10.1007/s10933-008-9193-7}{\detokenize{10.1007/s10933-008-9193-7}}}.
+
+\bibitem[Ros{\'e}n \em{et~al.}(2011)Ros{\'e}n, Vogel, Cunningham, Hahn,
+  Hausmann, Pienitz, Zolitschka, Wagner, and Persson]{rosen2011universally}
+Ros{\'e}n, P.; Vogel, H.; Cunningham, L.; Hahn, A.; Hausmann, S.; Pienitz, R.;
+  Zolitschka, B.; Wagner, B.; Persson, P.
+\newblock Universally applicable model for the quantitative determination of
+  lake sediment composition using Fourier transform infrared spectroscopy.
+\newblock {\em Environmental science \& technology} {\bf 2011}, {\em
+  45},~8858--8865.
 
 \end{thebibliography}
