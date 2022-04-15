@@ -390,6 +390,21 @@ Limited - Multi-Segment & Combined & 13.2485397696818 &
 \bottomrule
 \end{longtable}
 
+Once we have the most appropriate model, we must choose how many
+principal components to include within the model. Principal components
+refer to latent variables that the algorithm predicts within the model
+to use for prediction of the desired outcome variable (pls package
+citation). Including too few principal components will not provide
+enough predictive power, but too many risks an overly complex or
+overfitted model. We look at a plot (figure \ref{fig:fig4}) of RMSEP
+values for each potential number of components (n = 10), and find that
+using 10 components creates a model with the lowest RMSEP. Despite the
+high number of components, our model does not appear to overfit our data
+because it accurately generalizes to new data that was not included in
+the training data. Overall, our final model can be represented as:
+\(BSi = x_1 + x_2 + . . . + x_{1882} + b\) where the \(x_n\) variables
+are the individual wavenumbers and \(b\) is the intercept.
+
 \begin{figure}
 
 {\centering \includegraphics{final_paper_draft_files/figure-latex/fig4-1} 
