@@ -41,9 +41,9 @@ end <- c(480, 830, 1280)
 
 fig1 <- ggplot() +
   geom_line(data = WQ, aes(x=as.numeric(wavenumber),
-                           y= absorbance, color =  "Washed Qaurtz (No BSi)"))+
+                           y= absorbance, color =  "Washed Qaurtz With No BSi"))+
   geom_line(data = DB, aes(x=as.numeric(wavenumber),
-                           y= absorbance, color = "High BSi and TOC Sample")) +
+                           y= absorbance, color = "Diatoms With High BSi and TOC")) +
   xlim(4000, 300)+
   ylab("Absorbance") +
   xlab(expression(paste("Wavenumber ", cm^{-1}))) +
@@ -438,20 +438,25 @@ fig1 <- ggplot() +
 # }
 
 #figure 11
-region <- c(rep("GL", 28), rep("AK", 103))
+region <- c(rep("Greenland", 28), rep("Alaska", 103))
 
 all_data <- gl_ak_combined_df %>%
   mutate(region = region) %>%
   rownames_to_column(var = "sample") %>%
   pivot_longer(cols = 3:1883, names_to = "Wavenumber", values_to = "Absorbance") %>%
   mutate(Wavenumber = as.numeric(Wavenumber))
-all_data <- as.data.frame(all_data)
 
-fig11 <- ggplot(all_data, aes(x = Wavenumber, y= Absorbance, color = BSi, group = sample), alpha = 0.8) +
-  geom_line()+
+all_data <- as.data.frame(all_data) %>%
+  filter(sample != "WQ.0" & sample != "SS.0")
+
+fig11 <- ggplot(all_data, aes(x = Wavenumber, y= Absorbance,
+                              color = BSi, group = sample)) +
+  geom_line(alpha = 0.8)+
   facet_wrap(~region) +
   scale_color_continuous(type = "viridis")+
-  theme_bw()
+  theme_bw()+
+  xlab(expression(paste("Wavenumber ", cm^{-1})))
+
 
 #fig 12
 pre_interp <- read_csv("Samples/greenland_csv/FISK-10.0.csv") %>%
@@ -465,6 +470,7 @@ post_interp <- greenland_df[c("FISK-10.0"),] %>%
 
 fisk <- rbind(pre_interp, post_interp)
 
+
 fig12 <- ggplot(fisk, aes(x = wavenumber, y = absorbance))+
   geom_point() +
   facet_wrap(~status)+
@@ -472,7 +478,10 @@ fig12 <- ggplot(fisk, aes(x = wavenumber, y = absorbance))+
   xlab(expression(paste("Wavenumber ", cm^{-1}))) +
   annotate(geom = "rect", xmin=4000, xmax=Inf, ymin= - Inf, ymax=Inf,
            fill = "red", alpha = 0.1)+
-   ggtitle("Example Sample Spectrum")
+  annotate(geom = "rect", xmin=-Inf, xmax=368.3862, ymin= - Inf, ymax=Inf,
+           fill = "red", alpha = 0.1)+
+   ggtitle("Interpolation Sample Spectrum Example")+
+  theme_bw()
 
 
 

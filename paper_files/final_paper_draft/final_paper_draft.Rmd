@@ -75,6 +75,7 @@ output: rticles::mdpi_article
 
 ```{r setup, include = FALSE}
 knitr::opts_knit$set(root.dir = "../../")
+
 ```
 
 ```{r, echo = FALSE, message = FALSE, include = FALSE}
@@ -100,7 +101,7 @@ source('R/poster_plots.R')
 
 # Introduction
 
-Studying the content of biogenic silica and other organic compounds present in lake sediment cores can be a powerful tool in gaining insight into our reconstruction of past climates. The wet chemistry processes used to determine these proportions can be time consuming and costly. As a result, data on the amount of biogenic silica present in different samples is limited in quantity and resolution. Fourier-transform infrared (FTIR) spectroscopy is a promising technique to reduce the time and money needed to determine the proportion of these compounds in lake sediments. FTIR spectroscopy involves measuring the absorbance of the infrared radiation at different wavelengths. These absorbance values are arbitrary and unitless, so interpretation is needed to make them relevant between researchers. To interpret these absorbance values, we seek to use a Partial Least Squares Regression (PLSR) model to predict the percentage of the biogenic silica in each sample. This technique has been pioneered successfully by @vogel2008fourier, but is not accessible to those who might wish to use FTIR spectroscopy for their samples and lack the statistical background to implement a PLSR model.
+Studying the content of biogenic silica and other organic compounds present in lake sediment cores can be a powerful tool in gaining insight into our reconstruction of past climates. The wet chemistry processes used to determine these proportions can be time consuming and costly. As a result, data on the amount of biogenic silica present in different samples is limited in quantity and resolution. Fourier-transform infrared (FTIR) spectroscopy is a promising technique to reduce the time and money needed to determine the proportion of these compounds in lake sediments. FTIR spectroscopy involves measuring the absorbance of the infrared radiation at different wavelengths. These absorbance values are arbitrary and unitless @kamat2013make, so interpretation is needed to make them relevant between researchers. To interpret these absorbance values, we seek to use a Partial Least Squares Regression (PLSR) model to predict the percentage of the biogenic silica in each sample. This technique has been pioneered successfully by @vogel2008fourier, but is not accessible to those who might wish to use FTIR spectroscopy for their samples and lack the statistical background to implement a PLSR model.
 
 The goal of this project is to create an interface where a user can input their FTIR spectroscopy data into a PLSR model to calculate the approximate biogenic silica and total organic carbon percentages. Our work primarily includes improving the accuracy of the existing model (<https://github.com/people-r-strange/PLSmodel>) and preparing for universal input. This includes selection of the most applicable diagnostic plots to determine the accuracy of the model. Because this work will be accessible to the public, our model and corresponding interface satisfy an existing need for efficient FTIR spectroscopy interpretation. Further, greater accessibility and use of this technology may eliminate the need for expensive wet chemical processes.
 
@@ -120,7 +121,7 @@ The Greenland samples were tested at 3,697 distinct wavenumbers, ranging from 36
 
 The Greenland samples and the Alaskan samples were analyzed at different times with slightly different spectroscopy settings, so the wavenumbers measured do not match exactly. Even though the difference is small, the regression model requires the wavenumber labels to be consistent as they are the explanatory variables in the model. In addition, the Alaskan samples were analyzed on a much smaller range of wavenumbers than the Greenland samples, though the resolution was about the same. Therefore, the two sets of data have a mismatch in the number of columns, which we resolve using linear interpolation and elaborate below.
 
-```{r fig3, echo = FALSE,  fig.align='center', fig.cap = "A closer look at the Absorbance spectrum of a random sample from Greenland shows that the raw data (Before) has a lot of noise in wavenumbers above 4000 $cm^{-1}$, which is consistent throughout all samples. After truncating the spectrum and interpolating the Greenland data (After) there were no observable changes."}
+```{r fig3, echo = FALSE,  fig.align='center', fig.cap = "A closer look at the Absorbance spectrum of a random sample from Greenland shows that the raw data (Before) has a lot of noise in wavenumbers above 4000 $cm^{-1}$, which is consistent throughout all samples. After truncating the spectrum and interpolating the Greenland data (After) there were negligible changes."}
 fig12
 ```
 
@@ -132,8 +133,7 @@ In order to solve this issue, we will linearly interpolate the absorbance spectr
 
 The original model was trained on only the Greenland samples (n = 28) to predict BSi content within the Greenland samples. To improve accuracy of the model, we integrate the Alaskan samples (n =103). In total, we built five different models to gauge the best performance with our data. 
 
-The first two models are region-specific; this includes the original Greenland model mentioned above, as well as a similar model that uses the Alaskan samples only. The next model uses the full spectrum of combined Greenland and Alaska samples. The last two models use sections of the combined Greenland and Alaskan spectra that are typically correlated with high BSi content. One of the two models includes the most reported peak between 1050-1280  $cm^{-1}$, and the other considers all associated peaks between 1050-1280 $cm^{-1}$, 790 - 830 $cm^{-1}$, and 435 - 480 $cm^{-1}$ as highlighted in figure \ref{fig:fig1}.
-##^ cite rosen 
+The first two models are region-specific; this includes the original Greenland model mentioned above, as well as a similar model that uses the Alaskan samples only. The next model uses the full spectrum of combined Greenland and Alaska samples. The last two models use sections of the combined Greenland and Alaskan spectra that are typically correlated with high BSi content. One of the two models includes the most reported peak between 1050-1280 $cm^{-1}$, and the other considers all associated peaks between 1050-1280 $cm^{-1}$, 790 - 830 $cm^{-1}$, and 435 - 480 $cm^{-1}$ as highlighted in figure \ref{fig:fig1} @rosen2011universally.
 
 To compare the accuracy of these models, we look at the Mean Square Error (MSE) and Mean Absolute Deviation (MAD) values from each model. We employ assessment tools to determine the optimal number of components, notably Root Mean Squared Error of  Prediction (RMSEP). These values are useful, because they are a simple, comparable metric. A good model will minimize the size of prediction errors, leading to a small RMSEP. 
 
@@ -234,7 +234,6 @@ x<- tibble::tribble(
 knitr::kable(x, caption = "caption here, \\label{tab:mytable}")
 
 ```
-
 
 
 <!-- table \ref{tab:mytable} above -->
