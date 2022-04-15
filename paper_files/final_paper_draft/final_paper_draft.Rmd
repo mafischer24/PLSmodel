@@ -73,47 +73,75 @@ abbreviations:
 output: rticles::mdpi_article
 ---
 
+```{r setup, include = FALSE}
+knitr::opts_knit$set(root.dir = "../../")
+```
+
+```{r, echo = FALSE, message = FALSE, include = FALSE}
+source('R/compiled_data_load.R')
+```
+
+```{r, echo = FALSE, message = FALSE, include = FALSE}
+source('R/poster_plots.R')
+```
+
+
 <!-- # Version -->
 
 <!-- This Rmd-skeleton uses the mdpi Latex template published 2019/02.  -->
+
 <!-- However, the official template gets more frequently updated than the 'rticles' -->
+
 <!-- package. Therefore, please make sure prior to paper submission, that you're  -->
+
 <!-- using the most recent .cls, .tex and .bst files  -->
+
 <!-- (available [here](http://www.mdpi.com/authors/latex)). -->
 
 # Introduction
 
+Studying the content of biogenic silica and other organic compounds present in lake sediment cores can be a powerful tool in gaining insight into our reconstruction of past climates. The wet chemistry processes used to determine these proportions can be time consuming and costly. As a result, data on the amount of biogenic silica present in different samples is limited in quantity and resolution. Fourier-transform infrared (FTIR) spectroscopy is a promising technique to reduce the time and money needed to determine the proportion of these compounds in lake sediments. FTIR spectroscopy involves measuring the absorbance of the infrared radiation at different wavelengths. These absorbance values are arbitrary and unitless, so interpretation is needed to make them relevant between researchers. To interpret these absorbance values, we seek to use a Partial Least Squares Regression (PLSR) model to predict the percentage of the biogenic silica in each sample. This technique has been pioneered successfully by @vogel2008fourier, but is not accessible to those who might wish to use FTIR spectroscopy for their samples and lack the statistical background to implement a PLSR model.
 
-Studying the content of biogenic silica and other organic compounds present in lake sediment cores can be a powerful tool in gaining insight into our reconstruction of past climates. The wet chemistry processes used to determine these proportions can be time consuming and costly. As a result, data on the amount of biogenic silica present in different samples is limited in quantity and resolution. Fourier-transform infrared (FTIR) spectroscopy is a promising technique to reduce the time and money needed to determine the proportion of these compounds in lake sediments. FTIR spectroscopy involves measuring the absorbance of the infrared radiation at different wavelengths. These absorbance values are arbitrary and unitless, so interpretation is needed to make them relevant between researchers. To interpret these absorbance values, we seek to use a Partial Least Squares Regression (PLSR) model to predict the percentage of the biogenic silica in each sample. This technique has been pioneered successfully by @vogel2008fourier, but is not accessible to those who might wish to use FTIR spectroscopy for their samples and lack the statistical background to implement a PLSR model. 
- 
-The goal of this project is to create an interface where a user can input their FTIR spectroscopy data into a PLSR model to calculate the approximate biogenic silica and total organic carbon percentages. Our work primarily includes improving the accuracy of the existing model (https://github.com/people-r-strange/PLSmodel) and preparing for universal input. This includes selection of the most applicable diagnostic plots to determine the accuracy of the model. Because this work will be accessible to the public, our model and corresponding interface satisfy an existing need for efficient FTIR spectroscopy interpretation. Further, greater accessibility and use of this technology may eliminate the need for expensive wet chemical processes. 
+The goal of this project is to create an interface where a user can input their FTIR spectroscopy data into a PLSR model to calculate the approximate biogenic silica and total organic carbon percentages. Our work primarily includes improving the accuracy of the existing model (<https://github.com/people-r-strange/PLSmodel>) and preparing for universal input. This includes selection of the most applicable diagnostic plots to determine the accuracy of the model. Because this work will be accessible to the public, our model and corresponding interface satisfy an existing need for efficient FTIR spectroscopy interpretation. Further, greater accessibility and use of this technology may eliminate the need for expensive wet chemical processes.
 
 # Data
 
-The model runs on spectroscopy data gathered from the analysis of lake bed samples. 26 samples are from Greenland, 100 are from Alaska, and two are specially made calibration samples. Each sample has two dimensions: a list of wavelengths tested, and a corresponding list of absorbance values measuring the sample’s absorbance of that specific wavelength of light (figure \ref{fig:fig1}). Each sample also has a single associated measurement of biogenic silica, calculated by traditional wet chemistry. 
+Our model is trained on spectroscopy data gathered from the analysis of lake bed samples. 26 samples are from Greenland collected by Greg de Wet, 103 are from Alaska collected by Daryl Kaufman at Northern Arizona University, and samples of only diatoms and only washed quartz. Each pre-processed dataset has two variables: wavenumbers tested, and corresponding absorbance values measuring the sample’s absorbance of that specific wavenumber of light (Figure \ref{fig:fig1}). Each sample also has a single associated measurement of biogenic silica, calculated by traditional wet chemistry digestion methods. 
 
-```{r fig1, echo = FALSE, out.width= "85%", fig.cap = "Example showing two samples' absorbance values across the spectrum of wavelengths, illustrating the typical ranges of the spectrum for biogenic silica (BSi) and TOC (Total organic carbon).", fig.align='center'}
-knitr::include_graphics("fig1.png")
+```{r fig1, echo = FALSE,  fig.cap = "Comparison between absorbance values across the spectrum of wavelength for two calibration samples, one of pure diatoms, which have high biogenic silica (BSi) and total organic carbon (TOC) content, and one of washed quartz which has no BSi or TOC. Highlighted areas are ranges that correlate with BSi (in orange) and TOC (in yellow). The area under those peaks is what is usually reported in literature.", fig.align='center'}
+fig1
 ```
 
-The Greenland samples were tested at 3,697 wavelengths, from 368 cm^{-1} to 7497 cm^{-1}, while the Alaska samples were tested at 1,882 wavelengths from 368 cm^{-1} to 3996 cm^{-1}. The relationship between absorbance and wavelength is smooth for all samples between the wavelengths of 500 cm^{-1} and 4000 cm^{-1}, though below 500 cm^{-1} and above 4000 cm^{-1} the line shows increased noise, with the noise being the worst at the highest wavenumbers. This is evident in figure \ref{fig:fig2}, and even more notably in the higher wavenumbers of the wet quartz data in figure \ref{fig:fig3}. 
-
-```{r fig2, echo = FALSE, out.width= "80%", fig.align='center', fig.cap = "The wavelength spectrum for a sample containing a high BSi content showing disruption of the smooth line of absorbance values below 500 $cm^{-1}$ and above 400 $cm^{-1}$."}
-knitr::include_graphics("NANDB-4-highBSI.png")
+```{r fig2, echo = FALSE, fig.align='center', fig.cap = "Each sample’s spectrum is plotted here by region and color coded with actual biogenic silica (BSi) where dark blue colors are samples with low BSi and yellow denotes high BSi."}
+fig11
 ```
 
-```{r fig3, echo = FALSE, out.width= "80%", fig.align='center', fig.cap = "The wavelength spectrum for a Wet Quartz sample containing a lower BSi content, which shows even more disruption of the smooth line below 500 $cm^{-1}$ and above 400 $cm^{-1}$."}
-knitr::include_graphics("WQ-lowBSi.png")
+The Greenland samples were tested at 3,697 distinct wavenumbers, ranging from 368 $cm^{-1}$ to 7497 $cm^{-1}$, while the Alaska samples were tested at 1,882 distinct wavenumbers ranging from 368 cm^{-1} to 3996 $cm^{-1}$. The relationship between absorbance and wavenumber is smooth for all samples between the wavenumbers of 500 $cm^{-1}$ and 4000 $cm^{-1}$, though below 500 $cm^{-1}$ and above 4000 $cm^{-1}$ the line shows increased noise, with the noise being the worst at the highest wavenumbers. This is evident in figure \ref{fig:fig2}, and even more notably in the higher wavenumbers of the wet quartz data in figure \ref{fig:fig3}. 
+
+The Greenland samples and the Alaskan samples were analyzed at different times with slightly different spectroscopy settings, so the wavenumbers measured do not match exactly. Even though the difference is small, the regression model requires the wavenumber labels to be consistent as they are the explanatory variables in the model. In addition, the Alaskan samples were analyzed on a much smaller range of wavenumbers than the Greenland samples, though the resolution was about the same. Therefore, the two sets of data have a mismatch in the number of columns, which we resolve using linear interpolation and elaborate below.
+
+The Greenland samples were tested at 3,697 wavelengths, from 368 cm\^{-1} to 7497 cm\^{-1}, while the Alaska samples were tested at 1,882 wavelengths from 368 cm\^{-1} to 3996 cm\^{-1}. The relationship between absorbance and wavelength is smooth for all samples between the wavelengths of 500 cm\^{-1} and 4000 cm\^{-1}, though below 500 cm\^{-1} and above 4000 cm\^{-1} the line shows increased noise, with the noise being the worst at the highest wavenumbers. This is evident in figure \ref{fig:fig2}, and even more notably in the higher wavenumbers of the wet quartz data in figure \ref{fig:fig3}.
+
+
+
+```{r fig3, echo = FALSE,  fig.align='center', fig.cap = "A closer look at the Absorbance spectrum of a random sample from Greenland shows that the raw data (Before) has a lot of noise in wavenumbers above 4000 $cm^{-1}$, which is consistent throughout all samples. After truncating the spectrum and interpolating the Greenland data (After) there were no observable changes."}
+fig12
 ```
 
-	The Greenland samples and the Alaskan samples were analyzed at different times with slightly different spectroscopy settings, so the wavelengths measured do not match exactly. The difference is small to the point of negligence, but the regression model requires the wavelength labels to be consistent. In addition, the Alaskan samples were analyzed on a much smaller range of wavelengths than the Greenland samples, though the resolution was about the same. To solve both problems at once, we linearly interpolate the absorbance curve from each Greenland sample to match the wavelengths of the Alaskan samples, as those do not vary. The absorbance curves from both samples were high enough resolution and the differences in wavelengths measured were small enough that we are comfortable that this did not meaningfully alter the data in any way, besides to make it all fit seamlessly in the same model. These minute differences in wavelengths is seen in figure \ref{fig:fig4}, where the interpolated data (red) is mapped on top of the original data (black). Since the black points are obscured behind the red dots, we see that the differences in wavenumbers is negligible. 
+The Greenland samples and the Alaskan samples were analyzed at different times with slightly different spectroscopy settings, so the wavelengths measured do not match exactly. The difference is small to the point of negligence, but the regression model requires the wavelength labels to be consistent. In addition, the Alaskan samples were analyzed on a much smaller range of wavelengths than the Greenland samples, though the resolution was about the same. To solve both problems at once, we linearly interpolate the absorbance curve from each Greenland sample to match the wavelengths of the Alaskan samples, as those do not vary. The absorbance curves from both samples were high enough resolution and the differences in wavelengths measured were small enough that we are comfortable that this did not meaningfully alter the data in any way, besides to make it all fit seamlessly in the same model. These minute differences in wavelengths is seen in figure \ref{fig:fig4}, where the interpolated data (red) is mapped on top of the original data (black). Since the black points are obscured behind the red dots, we see that the differences in wavenumbers is negligible. 
 
-```{r fig4, echo = FALSE, out.width= "80%", fig.align='center', fig.cap = "Absorbance values shown across an interpolated wavelength spectrum (red) plotted on top of the absorbance values across the original empirical wavelength numbers (black). We only see a trace of the black beneath the red, indicating the accuracy of the interpolation of the high resolution data."}
-knitr::include_graphics("interpolation.png")
-```
-	
+# Methods
 
-<!-- # Materials and Methods -->
+We use functions from the `pls` (https://CRAN.R-project.org/package=pls) R package to create and evaluate our PLSR models. The original model was created using this same package. In order to run the PLSR model, we need all datasets to include the same amount of wavenumber columns with identical labels. This is because each wavenumber is treated as an independent variable in the model, and prediction is not possible if each sample has slightly different independent variables.
+
+In order to solve this issue, we will linearly interpolate the absorbance spectrum from each Greenland sample to match the wavenumbers of the Alaskan samples, rounded to the nearest integer for ease of human interpretation. This is because the range of wavenumbers measured in the Alaskan samples is smaller, therefore interpolating Alaskan samples onto the Greenland spectra would not be possible. Since the absorbance spectra from both samples are high resolution and the differences between the original and the interpolated absorbance values are small, we are comfortable that this does not meaningfully alter the data.
+
+The original model was trained on only the Greenland samples (n = 28) to predict BSi content within the Greenland samples. To improve accuracy of the model, we integrate the Alaskan samples (n =103). In total, we built five different models to gauge the best performance with our data. 
+
+The first two models are region-specific; this includes the original Greenland model mentioned above, as well as a similar model that uses the Alaskan samples only. The next model uses the full spectrum of combined Greenland and Alaska samples. The last two models use sections of the combined Greenland and Alaskan spectra that are typically correlated with high BSi content. One of the two models includes the most reported peak between 1050-1280  $cm^{-1}$, and the other considers all associated peaks between 1050-1280 $cm^{-1}$, 790 - 830 $cm^{-1}$, and 435 - 480 $cm^{-1}$ as highlighted in figure \ref{fig:fig1}.
+##^ cite rosen 
+
+To compare the accuracy of these models, we look at the Mean Square Error (MSE) and Mean Absolute Deviation (MAD) values from each model. We employ assessment tools to determine the optimal number of components, notably Root Mean Squared Error of  Prediction (RMSEP). These values are useful, because they are a simple, comparable metric. A good model will minimize the size of prediction errors, leading to a small RMSEP. 
 
 <!-- Materials and Methods should be described with sufficient details to allow others to replicate and build on published results. Please note that publication of your manuscript implicates that you must make all materials, data, computer code, and protocols associated with the publication available to readers. Please disclose at the submission stage any restrictions on the availability of materials or information. New methods and protocols should be described in detail while well-established methods can be briefly described and appropriately cited. -->
 
@@ -121,7 +149,33 @@ knitr::include_graphics("interpolation.png")
 
 <!-- Interventionary studies involving animals or humans, and other studies require ethical approval must list the authority that provided approval and the corresponding ethical approval code. -->
 
-<!-- # Results -->
+# Results
+
+Comparing the different models based on the metrics mentioned above, we find that the model that is trained on the full spectrum of the combined samples (Greenland + Alaskan) predicts BSi content the best. This is visible in table \ref{tab:tab1}, where we see that the combined full spectrum model has a Mean Squared Error of 6.84, which is considerably lower than even the next best model that has an MSE of 12.33. 
+
+```{r, echo = FALSE, message = FALSE, include = FALSE}
+source("R/model_selection.R")
+rm(alaskaPLS, combined_PLS, greenlandPLS)
+
+```
+
+```{r tab1, echo = FALSE, tab.align='center', tab.cap = "Overview of the five different models tested against each data set. The Mean Square Error (MSE) and Mean Absolute Deviation (MAD) were calculated to compare and the model that uses both the Alaska and Greenland full spectrum shows optimal results."}
+rownames(scores_df) <- c()
+
+scores_df %>%
+  rename(`Data Trained On` = modeled_on, `Data Tested On` = tested_on, MSE = mse, MAD = mad) %>%
+  knitr::kable(caption = "Overview of the five different models tested against each data set. The Mean Square Error (MSE) and Mean Absolute Deviation (MAD) were calculated to compare and the model that uses both the Alaska and Greenland full spectrum shows optimal results.")
+```
+
+Once we have the most appropriate model, we must choose how many principal components to include within the model. Principal components refer to latent variables that the algorithm predicts within the model to use for prediction of the desired outcome variable (pls package citation). Including too few principal components will not provide enough predictive power, but too many risks an overly complex or overfitted model. We look at a plot (figure \ref{fig:fig4}) of RMSEP values for each potential number of components (n = 10), and find that using 10 components creates a model with the lowest RMSEP. Despite the high number of components, our model does not appear to overfit our data because it accurately generalizes to new data that was not included in the training data. Overall, our final model can be represented as: $\begin{gather*} BSi = x_1 + x_2 + . . . + x_{1882} + b \end{gather*}$ where the $x_n$ variables are the individual wavenumbers and $b$ is the intercept. 
+
+```{r, echo = FALSE, message = FALSE, include = FALSE}
+source("training_pct_validation.R")
+```
+
+```{r fig4, echo = FALSE,  fig.align='center', fig.cap = "The Root Mean Square Error of Prediction (RMSEP) was calculated against new data for each component. Ten random samples were taken of the data for each percentage, and the model trained on that sample was then tested against the remaining data for each component, with the values shown above being the mean of the ten iterations for each combination, to limit the variation inherent in sampling. Based on this, we chose the model with 10 components as our final model."}
+rmsemp_comp
+```
 
 <!-- This section may be divided by subheadings. It should provide a concise and precise description of the experimental results, their interpretation as well as the experimental conclusions that can be drawn. -->
 
@@ -134,13 +188,17 @@ knitr::include_graphics("interpolation.png")
 <!-- Bulleted lists look like this: -->
 
 <!-- * First bullet -->
+
 <!-- * Second bullet -->
+
 <!-- * Third bullet -->
 
 <!-- Numbered lists can be added as follows: -->
 
 <!-- 1. First item -->
+
 <!-- 2. Second item -->
+
 <!-- 3. Third item -->
 
 <!-- The text continues here. -->
@@ -148,9 +206,13 @@ knitr::include_graphics("interpolation.png")
 <!-- All figures and tables should be cited in the main text as Figure \ref{fig:mdpi-logo}, Table 1, etc. -->
 
 <!-- \begin{figure}[H] -->
+
 <!-- \centering -->
+
 <!-- \includegraphics[width=3 cm]{logo-mdpi} -->
+
 <!-- \caption{This is a figure, Schemes follow the same formatting. If there are multiple panels, they should be listed as: (\textbf{a}) Description of what is contained in the first panel. (\textbf{b}) Description of what is contained in the second panel. Figures should be placed in the main text near to the first time they are cited. A caption on a single line should be centered.} -->
+
 <!-- \end{figure} -->
 
 ```{r mdpi-logo, echo=FALSE, fig.cap = "This is a figure, Schemes follow the same formatting. If there are multiple panels, they should be listed as: (**a**) Description of what is contained in the first panel. (**b**) Description of what is contained in the second panel. Figures should be placed in the main text near to the first time they are cited. A caption on a single line should be centered.", eval=FALSE}
@@ -161,6 +223,7 @@ knitr::include_graphics("logo-mdpi.pdf")
 ```
 
 <!-- #Figure \ref{fig:mdpi-logo} above -->
+
 <!-- #Figure \ref{fig:test-fig} below.  -->
 
 ```{r test-fig, fig.cap="test figure", echo=FALSE, include = FALSE}
@@ -178,43 +241,68 @@ knitr::kable(x, caption = "caption here, \\label{tab:mytable}")
 
 ```
 
+
+
 <!-- table \ref{tab:mytable} above -->
 
 <!-- #Bibliography reference @gujer_systems_2008, [@gujer_systems_2008] -->
 
 <!-- \begin{table}[H] -->
+
 <!-- \caption{This is a table caption. Tables should be placed in the main text near to the first time they are cited.} -->
+
 <!-- \centering -->
+
 <!-- %% \tablesize{} %% You can specify the fontsize here, e.g.  \tablesize{\footnotesize}. If commented out \small will be used. -->
+
 <!-- \begin{tabular}{ccc} -->
+
 <!-- \toprule -->
-<!-- \textbf{Title 1}	& \textbf{Title 2}	& \textbf{Title 3}\\ -->
+
+<!-- \textbf{Title 1}   & \textbf{Title 2}  & \textbf{Title 3}\\ -->
+
 <!-- \midrule -->
-<!-- entry 1		& data			& data\\ -->
-<!-- entry 2		& data			& data\\ -->
+
+<!-- entry 1        & data          & data\\ -->
+
+<!-- entry 2        & data          & data\\ -->
+
 <!-- \bottomrule -->
+
 <!-- \end{tabular} -->
+
 <!-- \end{table} -->
 
 <!-- This is an example of an equation: -->
 
 <!-- \begin{equation} -->
+
 <!-- \mathbb{S} -->
+
 <!-- \end{equation} -->
+
 <!-- If the documentclass option "submit" is chosen, please insert a blank line before and after any math environment (equation and eqnarray environments). This ensures correct linenumbering. The blank line should be removed when the documentclass option is changed to "accept" because the text following an equation should not be a new paragraph. -->
 
 <!-- Please punctuate equations as regular text. Theorem-type environments (including propositions, lemmas, corollaries etc.) can be formatted as follows: -->
+
 <!-- Example of a theorem: -->
+
 <!-- \begin{Theorem} -->
+
 <!-- Example text of a theorem. -->
+
 <!-- \end{Theorem} -->
 
 <!-- The text continues here. Proofs must be formatted as follows: -->
 
 <!-- Example of a proof: -->
+
 <!-- \begin{proof}[Proof of Theorem 1] -->
+
 <!-- Text of the proof. Note that the phrase `of Theorem 1' is optional if it is clear which theorem is being referred to. -->
+
 <!-- \end{proof} -->
+
 <!-- The text continues here. -->
 
 <!-- # Discussion -->

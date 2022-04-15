@@ -71,7 +71,7 @@ plot_df <- mses_by_perc %>%
                              percent == "p_090" ~ "90%",
                              percent == "p_100" ~ "Full",))
 
-ggplot(plot_df, aes(x = ncomps, y = value, color = percent)) + geom_line() +
+rmsemp_comp <- ggplot(plot_df, aes(x = ncomps, y = value, color = percent)) + geom_line() +
   scale_color_brewer(palette = "RdYlBu") + theme_bw() +
   xlab("Number of Components") +
   ylab("RMSE Value") +
