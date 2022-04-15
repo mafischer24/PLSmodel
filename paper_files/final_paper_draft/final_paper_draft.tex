@@ -172,17 +172,6 @@ facilitating FTIR Spectroscopy on lake sediments.}
 \providecommand{\tightlist}{%
   \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
 
-% From pandoc table feature
-\usepackage{longtable,booktabs,array}
-\usepackage{calc} % for calculating minipage widths
-% Correct order of tables after \paragraph or \subparagraph
-\usepackage{etoolbox}
-\makeatletter
-\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
-\makeatother
-% Allow footnotes in longtable head/foot
-\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
-\makesavenoteenv{longtable}
 
 
 
@@ -227,13 +216,15 @@ technology may eliminate the need for expensive wet chemical processes.
 \hypertarget{data}{%
 \section{Data}\label{data}}
 
-The model runs on spectroscopy data gathered from the analysis of lake
-bed samples. 26 samples are from Greenland, 100 are from Alaska, and two
-are specially made calibration samples. Each sample has two dimensions:
-a list of wavelengths tested, and a corresponding list of absorbance
-values measuring the sample's absorbance of that specific wavelength of
-light (figure \ref{fig:fig1}). Each sample also has a single associated
-measurement of biogenic silica, calculated by traditional wet chemistry.
+Our model is trained on spectroscopy data gathered from the analysis of
+lake bed samples. 26 samples are from Greenland collected by Greg de
+Wet, 103 are from Alaska collected by Daryl Kaufman at Northern Arizona
+University, and samples of only diatoms and only washed quartz. Each
+pre-processed dataset has two variables: wavenumbers tested, and
+corresponding absorbance values measuring the sample's absorbance of
+that specific wavenumber of light (Figure \ref{fig:fig1}). Each sample
+also has a single associated measurement of biogenic silica, calculated
+by traditional wet chemistry digestion methods.
 
 \begin{verbatim}
 ## Warning: Removed 1814 row(s) containing missing values (geom_path).
@@ -248,17 +239,6 @@ measurement of biogenic silica, calculated by traditional wet chemistry.
 \caption{Comparison between absorbance values across the spectrum of wavelength for two calibration samples, one of pure diatoms, which have high biogenic silica (BSi) and total organic carbon (TOC) content, and one of washed quartz which has no BSi or TOC. Highlighted areas are ranges that correlate with BSi (in orange) and TOC (in yellow). The area under those peaks is what is usually reported in literature.}\label{fig:fig1}
 \end{figure}
 
-The Greenland samples were tested at 3,697 wavelengths, from 368
-cm\^{}\{-1\} to 7497 cm\^{}\{-1\}, while the Alaska samples were tested
-at 1,882 wavelengths from 368 cm\^{}\{-1\} to 3996 cm\^{}\{-1\}. The
-relationship between absorbance and wavelength is smooth for all samples
-between the wavelengths of 500 cm\^{}\{-1\} and 4000 cm\^{}\{-1\},
-though below 500 cm\^{}\{-1\} and above 4000 cm\^{}\{-1\} the line shows
-increased noise, with the noise being the worst at the highest
-wavenumbers. This is evident in figure \ref{fig:fig2}, and even more
-notably in the higher wavenumbers of the wet quartz data in figure
-\ref{fig:fig3}.
-
 \begin{figure}
 
 {\centering \includegraphics{final_paper_draft_files/figure-latex/fig2-1} 
@@ -267,6 +247,27 @@ notably in the higher wavenumbers of the wet quartz data in figure
 
 \caption{Each sample’s spectrum is plotted here by region and color coded with actual biogenic silica (BSi) where dark blue colors are samples with low BSi and yellow denotes high BSi.}\label{fig:fig2}
 \end{figure}
+
+The Greenland samples were tested at 3,697 distinct wavenumbers, ranging
+from 368 \(cm^{-1}\) to 7497 \(cm^{-1}\), while the Alaska samples were
+tested at 1,882 distinct wavenumbers ranging from 368 cm\^{}\{-1\} to
+3996 \(cm^{-1}\). The relationship between absorbance and wavenumber is
+smooth for all samples between the wavenumbers of 500 \(cm^{-1}\) and
+4000 \(cm^{-1}\), though below 500 \(cm^{-1}\) and above 4000
+\(cm^{-1}\) the line shows increased noise, with the noise being the
+worst at the highest wavenumbers. This is evident in figure
+\ref{fig:fig2}, and even more notably in the higher wavenumbers of the
+wet quartz data in figure \ref{fig:fig3}.
+
+The Greenland samples and the Alaskan samples were analyzed at different
+times with slightly different spectroscopy settings, so the wavenumbers
+measured do not match exactly. Even though the difference is small, the
+regression model requires the wavenumber labels to be consistent as they
+are the explanatory variables in the model. In addition, the Alaskan
+samples were analyzed on a much smaller range of wavenumbers than the
+Greenland samples, though the resolution was about the same. Therefore,
+the two sets of data have a mismatch in the number of columns, which we
+resolve using linear interpolation and elaborate below.
 
 \begin{figure}
 
@@ -277,77 +278,76 @@ notably in the higher wavenumbers of the wet quartz data in figure
 \caption{A closer look at the Absorbance spectrum of a random sample from Greenland shows that the raw data (Before) has a lot of noise in wavenumbers above 4000 $cm^{-1}$, which is consistent throughout all samples. After truncating the spectrum and interpolating the Greenland data (After) there were no observable changes.}\label{fig:fig3}
 \end{figure}
 
-The Greenland samples and the Alaskan samples were analyzed at different
-times with slightly different spectroscopy settings, so the wavelengths
-measured do not match exactly. The difference is small to the point of
-negligence, but the regression model requires the wavelength labels to
-be consistent. In addition, the Alaskan samples were analyzed on a much
-smaller range of wavelengths than the Greenland samples, though the
-resolution was about the same. To solve both problems at once, we
-linearly interpolate the absorbance curve from each Greenland sample to
-match the wavelengths of the Alaskan samples, as those do not vary. The
-absorbance curves from both samples were high enough resolution and the
-differences in wavelengths measured were small enough that we are
-comfortable that this did not meaningfully alter the data in any way,
-besides to make it all fit seamlessly in the same model. These minute
-differences in wavelengths is seen in figure \ref{fig:fig4}, where the
-interpolated data (red) is mapped on top of the original data (black).
-Since the black points are obscured behind the red dots, we see that the
-differences in wavenumbers is negligible.
+\hypertarget{methods}{%
+\section{Methods}\label{methods}}
 
-\begin{longtable}[]{@{}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.3288}}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2055}}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2329}}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2329}}@{}}
-\caption{Overview of the five different models tested against each data
-set. The Mean Square Error (MSE) and Mean Absolute Deviation (MAD) were
-calculated to compare and the model that uses both the Alaska and
-Greenland full spectrum shows optimal results.}\tabularnewline
-\toprule
-\begin{minipage}[b]{\linewidth}\raggedright
-Data Trained On
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-Data Tested On
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-MSE
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-MAD
-\end{minipage} \\
-\midrule
-\endfirsthead
-\toprule
-\begin{minipage}[b]{\linewidth}\raggedright
-Data Trained On
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-Data Tested On
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-MSE
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-MAD
-\end{minipage} \\
-\midrule
-\endhead
-Greenland & Alaska & 61.78174700958 & 6.97577898211303 \\
-Greenland & Combined & 47.0020588160737 & 5.64642471647423 \\
-Alaska & Greenland & 307.56239102917 & 14.9424681723402 \\
-Alaska & Combined & 71.3391970518575 & 4.7130242367885 \\
-Combined & Combined & 6.84194528643838 & 2.02673866084178 \\
-Limited - One Segment & Combined & 12.3313102356506 &
-2.84803813321514 \\
-Limited - Multi-Segment & Combined & 13.2485397696818 &
-2.78010069524131 \\
-\bottomrule
-\end{longtable}
+We use functions from the \texttt{pls}
+(\url{https://CRAN.R-project.org/package=pls}) R package to create and
+evaluate our PLSR models. The original model was created using this same
+package. In order to run the PLSR model, we need all datasets to include
+the same amount of wavenumber columns with identical labels. This is
+because each wavenumber is treated as an independent variable in the
+model, and prediction is not possible if each sample has slightly
+different independent variables.
 
-\begin{figure}
+In order to solve this issue, we will linearly interpolate the
+absorbance spectrum from each Greenland sample to match the wavenumbers
+of the Alaskan samples, rounded to the nearest integer for ease of human
+interpretation. This is because the range of wavenumbers measured in the
+Alaskan samples is smaller, therefore interpolating Alaskan samples onto
+the Greenland spectra would not be possible. Since the absorbance
+spectra from both samples are high resolution and the differences
+between the original and the interpolated absorbance values are small,
+we are comfortable that this does not meaningfully alter the data.
 
-{\centering \includegraphics{final_paper_draft_files/figure-latex/fig4-1} 
+The original model was trained on only the Greenland samples (n = 28) to
+predict BSi content within the Greenland samples. To improve accuracy of
+the model, we integrate the Alaskan samples (n =103). In total, we built
+five different models to gauge the best performance with our data.
 
-}
+The first two models are region-specific; this includes the original
+Greenland model mentioned above, as well as a similar model that uses
+the Alaskan samples only. The next model uses the full spectrum of
+combined Greenland and Alaska samples. The last two models use sections
+of the combined Greenland and Alaskan spectra that are typically
+correlated with high BSi content. One of the two models includes the
+most reported peak between 1050-1280 \(cm^{-1}\), and the other
+considers all associated peaks between 1050-1280 \(cm^{-1}\), 790 - 830
+\(cm^{-1}\), and 435 - 480 \(cm^{-1}\) as highlighted in figure
+\ref{fig:fig1}. \#\#\^{} cite rosen
 
-\caption{The Root Mean Square Error of Prediction (RMSEP) was calculated against new data for each component. Ten random samples were taken of the data for each percentage, and the model trained on that sample was then tested against the remaining data for each component, with the values shown above being the mean of the ten iterations for each combination, to limit the variation inherent in sampling. Based on this, we chose the model with 10 components as our final model.}\label{fig:fig4}
-\end{figure}
+To compare the accuracy of these models, we look at the Mean Square
+Error (MSE) and Mean Absolute Deviation (MAD) values from each model. We
+employ assessment tools to determine the optimal number of components,
+notably Root Mean Squared Error of Prediction (RMSEP). These values are
+useful, because they are a simple, comparable metric. A good model will
+minimize the size of prediction errors, leading to a small RMSEP.
+
+\hypertarget{results}{%
+\section{Results}\label{results}}
+
+Comparing the different models based on the metrics mentioned above, we
+find that the model that is trained on the full spectrum of the combined
+samples (Greenland + Alaskan) predicts BSi content the best. This is
+visible in table \ref{tab:tab1}, where we see that the combined full
+spectrum model has a Mean Squared Error of 6.84, which is considerably
+lower than even the next best model that has an MSE of 12.33.
+
+Once we have the most appropriate model, we must choose how many
+principal components to include within the model. Principal components
+refer to latent variables that the algorithm predicts within the model
+to use for prediction of the desired outcome variable (pls package
+citation). Including too few principal components will not provide
+enough predictive power, but too many risks an overly complex or
+overfitted model. We look at a plot (figure \ref{fig:fig4}) of RMSEP
+values for each potential number of components (n = 10), and find that
+using 10 components creates a model with the lowest RMSEP. Despite the
+high number of components, our model does not appear to overfit our data
+because it accurately generalizes to new data that was not included in
+the training data. Overall, our final model can be represented as:
+\(\begin{gather} BSi = x_1 + x_2 + . . . + x_{1882} + b \end{gather}\)
+where the \(x_n\) variables are the individual wavenumbers and \(b\) is
+the intercept.
 
 wordcountaddin::text\_stats()
 
