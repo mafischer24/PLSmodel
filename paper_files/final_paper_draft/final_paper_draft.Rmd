@@ -132,7 +132,9 @@ The Greenland samples and the Alaskan samples were analyzed at different times w
 
 <!-- Interventionary studies involving animals or humans, and other studies require ethical approval must list the authority that provided approval and the corresponding ethical approval code. -->
 
-<!-- # Results -->
+# Results
+
+Comparing the different models based on the metrics mentioned above, we find that the model that is trained on the full spectrum of the combined samples (Greenland + Alaskan) predicts BSi content the best. This is visible in table \ref{tab:tab1}, where we see that the combined full spectrum model has a Mean Squared Error of 6.84, which is considerably lower than even the next best model that has an MSE of 12.33. 
 
 ```{r, echo = FALSE, message = FALSE, include = FALSE}
 source("R/model_selection.R")
@@ -148,6 +150,8 @@ scores_df %>%
   knitr::kable(caption = "Overview of the five different models tested against each data set. The Mean Square Error (MSE) and Mean Absolute Deviation (MAD) were calculated to compare and the model that uses both the Alaska and Greenland full spectrum shows optimal results.")
 ```
 
+Once we have the most appropriate model, we must choose how many principal components to include within the model. Principal components refer to latent variables that the algorithm predicts within the model to use for prediction of the desired outcome variable (pls package citation). Including too few principal components will not provide enough predictive power, but too many risks an overly complex or overfitted model. We look at a plot (figure \ref{fig:fig4}) of RMSEP values for each potential number of components (n = 10), and find that using 10 components creates a model with the lowest RMSEP. Despite the high number of components, our model does not appear to overfit our data because it accurately generalizes to new data that was not included in the training data. Overall, our final model can be represented as: $\begin{gather*} BSi = x_1 + x_2 + . . . + x_{1882} + b \end{gather*}$ where the $x_n$ variables are the individual wavenumbers and $b$ is the intercept. 
+
 ```{r, echo = FALSE, message = FALSE, include = FALSE}
 source("training_pct_validation.R")
 ```
@@ -155,6 +159,7 @@ source("training_pct_validation.R")
 ```{r fig4, echo = FALSE,  fig.align='center', fig.cap = "The Root Mean Square Error of Prediction (RMSEP) was calculated against new data for each component. Ten random samples were taken of the data for each percentage, and the model trained on that sample was then tested against the remaining data for each component, with the values shown above being the mean of the ten iterations for each combination, to limit the variation inherent in sampling. Based on this, we chose the model with 10 components as our final model."}
 rmsemp_comp
 ```
+
 <!-- This section may be divided by subheadings. It should provide a concise and precise description of the experimental results, their interpretation as well as the experimental conclusions that can be drawn. -->
 
 <!-- ## Subsection Heading Here -->
