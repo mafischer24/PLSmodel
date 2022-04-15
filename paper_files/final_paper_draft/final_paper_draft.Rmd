@@ -122,7 +122,7 @@ fig11
 fig12
 ```
 
-    The Greenland samples and the Alaskan samples were analyzed at different times with slightly different spectroscopy settings, so the wavelengths measured do not match exactly. The difference is small to the point of negligence, but the regression model requires the wavelength labels to be consistent. In addition, the Alaskan samples were analyzed on a much smaller range of wavelengths than the Greenland samples, though the resolution was about the same. To solve both problems at once, we linearly interpolate the absorbance curve from each Greenland sample to match the wavelengths of the Alaskan samples, as those do not vary. The absorbance curves from both samples were high enough resolution and the differences in wavelengths measured were small enough that we are comfortable that this did not meaningfully alter the data in any way, besides to make it all fit seamlessly in the same model. These minute differences in wavelengths is seen in figure \ref{fig:fig4}, where the interpolated data (red) is mapped on top of the original data (black). Since the black points are obscured behind the red dots, we see that the differences in wavenumbers is negligible. 
+The Greenland samples and the Alaskan samples were analyzed at different times with slightly different spectroscopy settings, so the wavelengths measured do not match exactly. The difference is small to the point of negligence, but the regression model requires the wavelength labels to be consistent. In addition, the Alaskan samples were analyzed on a much smaller range of wavelengths than the Greenland samples, though the resolution was about the same. To solve both problems at once, we linearly interpolate the absorbance curve from each Greenland sample to match the wavelengths of the Alaskan samples, as those do not vary. The absorbance curves from both samples were high enough resolution and the differences in wavelengths measured were small enough that we are comfortable that this did not meaningfully alter the data in any way, besides to make it all fit seamlessly in the same model. These minute differences in wavelengths is seen in figure \ref{fig:fig4}, where the interpolated data (red) is mapped on top of the original data (black). Since the black points are obscured behind the red dots, we see that the differences in wavenumbers is negligible. 
 
 <!-- # Materials and Methods -->
 
@@ -140,7 +140,7 @@ rm(alaskaPLS, combined_PLS, greenlandPLS)
 
 ```
 
-```{r, echo = FALSE}
+```{r table1, echo = FALSE, fig.align='center', fig.cap = "Overview of the five different models tested against each data set. The Mean Square Error (MSE) and Mean Absolute Deviation (MAD) were calculated to compare and the model that uses both the Alaska and Greenland full spectrum shows optimal results."}
 rownames(scores_df) <- c()
 
 scores_df %>%
@@ -148,6 +148,13 @@ scores_df %>%
   knitr::kable()
 ```
 
+```{r, echo = FALSE, message = FALSE, include = FALSE}
+source("training_pct_validation.R")
+```
+
+```{r fig4, echo = FALSE,  fig.align='center', fig.cap = "The Root Mean Square Error of Prediction (RMSEP) was calculated against new data for each component. Ten random samples were taken of the data for each percentage, and the model trained on that sample was then tested against the remaining data for each component, with the values shown above being the mean of the ten iterations for each combination, to limit the variation inherent in sampling. Based on this, we chose the model with 10 components as our final model."}
+rmsemp_comp
+```
 <!-- This section may be divided by subheadings. It should provide a concise and precise description of the experimental results, their interpretation as well as the experimental conclusions that can be drawn. -->
 
 <!-- ## Subsection Heading Here -->
