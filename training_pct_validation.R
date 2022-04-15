@@ -76,5 +76,7 @@ rmsemp_comp <- ggplot(plot_df, aes(x = ncomps, y = value, color = percent)) + ge
   xlab("Number of Components") +
   ylab("RMSE Value") +
   ggtitle("Root Mean Squared Error by Number of Components") +
-  labs(color = "Training Data %")
+  labs(color = "Training Data %") +
+  scale_x_continuous(breaks = c(1,2,3,4,5,6,7,8,9,10))+
+  scale_color_viridis_d()
 
