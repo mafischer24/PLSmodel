@@ -172,6 +172,17 @@ facilitating FTIR Spectroscopy on lake sediments.}
 \providecommand{\tightlist}{%
   \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
 
+% From pandoc table feature
+\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
 
 
 
@@ -193,13 +204,14 @@ infrared (FTIR) spectroscopy is a promising technique to reduce the time
 and money needed to determine the proportion of these compounds in lake
 sediments. FTIR spectroscopy involves measuring the absorbance of the
 infrared radiation at different wavelengths. These absorbance values are
-arbitrary and unitless, so interpretation is needed to make them
-relevant between researchers. To interpret these absorbance values, we
-seek to use a Partial Least Squares Regression (PLSR) model to predict
-the percentage of the biogenic silica in each sample. This technique has
-been pioneered successfully by \citet{vogel2008fourier}, but is not
-accessible to those who might wish to use FTIR spectroscopy for their
-samples and lack the statistical background to implement a PLSR model.
+arbitrary and unitless \citet{kamat2013make}, so interpretation is
+needed to make them relevant between researchers. To interpret these
+absorbance values, we seek to use a Partial Least Squares Regression
+(PLSR) model to predict the percentage of the biogenic silica in each
+sample. This technique has been pioneered successfully by
+\citet{vogel2008fourier}, but is not accessible to those who might wish
+to use FTIR spectroscopy for their samples and lack the statistical
+background to implement a PLSR model.
 
 The goal of this project is to create an interface where a user can
 input their FTIR spectroscopy data into a PLSR model to calculate the
@@ -314,7 +326,7 @@ correlated with high BSi content. One of the two models includes the
 most reported peak between 1050-1280 \(cm^{-1}\), and the other
 considers all associated peaks between 1050-1280 \(cm^{-1}\), 790 - 830
 \(cm^{-1}\), and 435 - 480 \(cm^{-1}\) as highlighted in figure
-\ref{fig:fig1}. \#\#\^{} cite rosen
+\ref{fig:fig1} \citet{rosen2011universally}.
 
 To compare the accuracy of these models, we look at the Mean Square
 Error (MSE) and Mean Absolute Deviation (MAD) values from each model. We
@@ -333,23 +345,59 @@ visible in table \ref{tab:tab1}, where we see that the combined full
 spectrum model has a Mean Squared Error of 6.84, which is considerably
 lower than even the next best model that has an MSE of 12.33.
 
-Once we have the most appropriate model, we must choose how many
-principal components to include within the model. Principal components
-refer to latent variables that the algorithm predicts within the model
-to use for prediction of the desired outcome variable (pls package
-citation). Including too few principal components will not provide
-enough predictive power, but too many risks an overly complex or
-overfitted model. We look at a plot (figure \ref{fig:fig4}) of RMSEP
-values for each potential number of components (n = 10), and find that
-using 10 components creates a model with the lowest RMSEP. Despite the
-high number of components, our model does not appear to overfit our data
-because it accurately generalizes to new data that was not included in
-the training data. Overall, our final model can be represented as:
-\(\begin{gather*} BSi = x_1 + x_2 + . . . + x_{1882} + b \end{*gather}\)
-where the \(x_n\) variables are the individual wavenumbers and \(b\) is
-the intercept.
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.3288}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2055}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2329}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2329}}@{}}
+\caption{Overview of the five different models tested against each data
+set. The Mean Square Error (MSE) and Mean Absolute Deviation (MAD) were
+calculated to compare and the model that uses both the Alaska and
+Greenland full spectrum shows optimal results.}\tabularnewline
+\toprule
+\begin{minipage}[b]{\linewidth}\raggedright
+Data Trained On
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Data Tested On
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+MSE
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+MAD
+\end{minipage} \\
+\midrule
+\endfirsthead
+\toprule
+\begin{minipage}[b]{\linewidth}\raggedright
+Data Trained On
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Data Tested On
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+MSE
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+MAD
+\end{minipage} \\
+\midrule
+\endhead
+Greenland & Alaska & 61.78174700958 & 6.97577898211303 \\
+Greenland & Combined & 47.0020588160737 & 5.64642471647423 \\
+Alaska & Greenland & 307.56239102917 & 14.9424681723402 \\
+Alaska & Combined & 71.3391970518575 & 4.7130242367885 \\
+Combined & Combined & 6.84194528643838 & 2.02673866084178 \\
+Limited - One Segment & Combined & 12.3313102356506 &
+2.84803813321514 \\
+Limited - Multi-Segment & Combined & 13.2485397696818 &
+2.78010069524131 \\
+\bottomrule
+\end{longtable}
 
-\(\include{amsmath}\)
+\begin{figure}
+
+{\centering \includegraphics{final_paper_draft_files/figure-latex/fig4-1} 
+
+}
+
+\caption{The Root Mean Square Error of Prediction (RMSEP) was calculated against new data for each component. Ten random samples were taken of the data for each percentage, and the model trained on that sample was then tested against the remaining data for each component, with the values shown above being the mean of the ten iterations for each combination, to limit the variation inherent in sampling. Based on this, we chose the model with 10 components as our final model.}\label{fig:fig4}
+\end{figure}
 
 wordcountaddin::text\_stats()
 
