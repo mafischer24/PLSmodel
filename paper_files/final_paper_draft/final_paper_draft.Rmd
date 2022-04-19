@@ -2,19 +2,19 @@
 title: Calibration, Validation, and Radiation$:$ Predicting Biogenic Silica and Organic Carbon Percentages in Lake Sediment Core Samples
 author:
   - name: Rana Gahwagy
-    affil: 1,2,\ddagger,*
+    affil: 1
     orcid: 0000-0003-3293-2315
   - name: Lauren Meyer
-    affil: 2, \dagger, \ddagger
+    affil: 1
   - name: Grace Hartley
-    affil: 2, \dagger
+    affil: 1
 affiliation:
   - num: 1
     address: |
       Smith College
       Department of Statistical and Data Sciences
       Northampon, MA 01063
-    email: rgahwagy@smith.edu, lmeyer@smith.edu, ghartley@smith.edu
+    
 #  - num: 2
 #    address: |
 #      Your department
@@ -25,8 +25,8 @@ affiliation:
 #  Current address: Updated affiliation
 #secondnote: |
 #  These authors contributed equally to this work.
-#correspondence: |
-#  leutnant@fh-muenster.de; Tel.: +XX-000-00-0000.
+correspondence: |
+email: rgahwagy@smith.edu, lmeyer@smith.edu, ghartley@smith.edu
 journal: water
 type: article
 status: submit
@@ -101,7 +101,7 @@ source('R/poster_plots.R')
 
 # Introduction
 
-Studying the content of biogenic silica and other organic compounds present in lake sediment cores can be a powerful tool in gaining insight into our reconstruction of past climates. The wet chemistry processes used to determine these proportions can be time consuming and costly. As a result, data on the amount of biogenic silica present in different samples is limited in quantity and resolution. Fourier-transform infrared (FTIR) spectroscopy is a promising technique to reduce the time and money needed to determine the proportion of these compounds in lake sediments. FTIR spectroscopy involves measuring the absorbance of the infrared radiation at different wavelengths. These absorbance values are arbitrary and unitless @kamat2013make, so interpretation is needed to make them relevant between researchers. To interpret these absorbance values, we seek to use a Partial Least Squares Regression (PLSR) model to predict the percentage of the biogenic silica in each sample. This technique has been pioneered successfully by @vogel2008fourier, but is not accessible to those who might wish to use FTIR spectroscopy for their samples and lack the statistical background to implement a PLSR model.
+Studying the content of biogenic silica and other organic compounds present in lake sediment cores can be a powerful tool in gaining insight into our reconstruction of past climates. The wet chemistry processes used to determine these proportions can be time consuming and costly. As a result, data on the amount of biogenic silica present in different samples is limited in quantity and resolution. Fourier-transform infrared (FTIR) spectroscopy is a promising technique to reduce the time and money needed to determine the proportion of these compounds in lake sediments. FTIR spectroscopy involves measuring the absorbance of the infrared radiation at different wavelengths. These absorbance values are arbitrary and unitless [@kamat2013make], so interpretation is needed to make them relevant between researchers. To interpret these absorbance values, we seek to use a Partial Least Squares Regression (PLSR) model to predict the percentage of the biogenic silica in each sample. This technique has been pioneered successfully by @vogel2008fourier, but is not accessible to those who might wish to use FTIR spectroscopy for their samples and lack the statistical background to implement a PLSR model.
 
 The goal of this project is to create an interface where a user can input their FTIR spectroscopy data into a PLSR model to calculate the approximate biogenic silica and total organic carbon percentages. Our work primarily includes improving the accuracy of the existing model (<https://github.com/people-r-strange/PLSmodel>) and preparing for universal input. This includes selection of the most applicable diagnostic plots to determine the accuracy of the model. Because this work will be accessible to the public, our model and corresponding interface satisfy an existing need for efficient FTIR spectroscopy interpretation. Further, greater accessibility and use of this technology may eliminate the need for expensive wet chemical processes.
 
@@ -127,13 +127,13 @@ fig12
 
 # Methods
 
-We use functions from the `pls` (https://CRAN.R-project.org/package=pls) R package to create and evaluate our PLSR models. The original model was created using this same package. In order to run the PLSR model, we need all datasets to include the same amount of wavenumber columns with identical labels. This is because each wavenumber is treated as an independent variable in the model, and prediction is not possible if each sample has slightly different independent variables.
+We use functions from the `pls` R package to create and evaluate our PLSR models [@R-pls]. The original model was created using this same package. In order to run the PLSR model, we need all datasets to include the same amount of wavenumber columns with identical labels. This is because each wavenumber is treated as an independent variable in the model, and prediction is not possible if each sample has slightly different independent variables.
 
 In order to solve this issue, we will linearly interpolate the absorbance spectrum from each Greenland sample to match the wavenumbers of the Alaskan samples, rounded to the nearest integer for ease of human interpretation. This is because the range of wavenumbers measured in the Alaskan samples is smaller, therefore interpolating Alaskan samples onto the Greenland spectra would not be possible. Since the absorbance spectra from both samples are high resolution and the differences between the original and the interpolated absorbance values are small, we are comfortable that this does not meaningfully alter the data.
 
 The original model was trained on only the Greenland samples (n = 28) to predict BSi content within the Greenland samples. To improve accuracy of the model, we integrate the Alaskan samples (n =103). In total, we built five different models to gauge the best performance with our data. 
 
-The first two models are region-specific; this includes the original Greenland model mentioned above, as well as a similar model that uses the Alaskan samples only. The next model uses the full spectrum of combined Greenland and Alaska samples. The last two models use sections of the combined Greenland and Alaskan spectra that are typically correlated with high BSi content. One of the two models includes the most reported peak between 1050-1280 $cm^{-1}$, and the other considers all associated peaks between 1050-1280 $cm^{-1}$, 790 - 830 $cm^{-1}$, and 435 - 480 $cm^{-1}$ as highlighted in figure \ref{fig:fig1} @rosen2011universally.
+The first two models are region-specific; this includes the original Greenland model mentioned above, as well as a similar model that uses the Alaskan samples only. The next model uses the full spectrum of combined Greenland and Alaska samples. The last two models use sections of the combined Greenland and Alaskan spectra that are typically correlated with high BSi content. One of the two models includes the most reported peak between 1050-1280 $cm^{-1}$, and the other considers all associated peaks between 1050-1280 $cm^{-1}$, 790 - 830 $cm^{-1}$, and 435 - 480 $cm^{-1}$ as highlighted in figure \ref{fig:fig1} [@rosen2011universally].
 
 To compare the accuracy of these models, we look at the Mean Square Error (MSE) and Mean Absolute Deviation (MAD) values from each model. We employ assessment tools to determine the optimal number of components, notably Root Mean Squared Error of  Prediction (RMSEP). These values are useful, because they are a simple, comparable metric. A good model will minimize the size of prediction errors, leading to a small RMSEP. 
 
@@ -161,7 +161,7 @@ scores_df %>%
   knitr::kable(caption = "Overview of the five different models tested against each data set. The Mean Square Error (MSE) and Mean Absolute Deviation (MAD) were calculated to compare and the model that uses both the Alaska and Greenland full spectrum shows optimal results.")
 ```
 
-Once we have the most appropriate model, we must choose how many principal components to include within the model. Principal components refer to latent variables that the algorithm predicts within the model to use for prediction of the desired outcome variable (pls package citation). Including too few principal components will not provide enough predictive power, but too many risks an overly complex or overfitted model. We look at a plot (figure \ref{fig:fig4}) of RMSEP values for each potential number of components (n = 10), and find that using 10 components creates a model with the lowest RMSEP. Despite the high number of components, our model does not appear to overfit our data because it accurately generalizes to new data that was not included in the training data. Overall, our final model can be represented as: $\begin{gather*} BSi = x_1 + x_2 + . . . + x_{1882} + b \end{*gather}$ where the $x_n$ variables are the individual wavenumbers and $b$ is the intercept. 
+Once we have the most appropriate model, we must choose how many principal components to include within the model. Principal components refer to latent variables that the algorithm predicts within the model to use for prediction of the desired outcome variable (pls package citation). Including too few principal components will not provide enough predictive power, but too many risks an overly complex or overfitted model. We look at a plot (figure \ref{fig:fig4}) of RMSEP values for each potential number of components (n = 10), and find that using 10 components creates a model with the lowest RMSEP. Despite the high number of components, our model does not appear to overfit our data because it accurately generalizes to new data that was not included in the training data. Overall, our final model can be represented as: $BSi = x_1 + x_2 + . . . + x_{1882} + b$ where the $x_n$ variables are the individual wavenumbers and $b$ is the intercept. 
 
 ```{r, echo = FALSE, message = FALSE, include = FALSE}
 source("training_pct_validation.R")

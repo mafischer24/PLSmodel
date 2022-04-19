@@ -16,6 +16,12 @@ Vogel, H.; Ros{\'e}n, P.; Wagner, B.; Melles, M.; Persson, P.
   \url{https://link-springer-com.libproxy.smith.edu/article/10.1007/s10933-008-9193-7},
   doi:{\changeurlcolor{black}\href{https://doi.org/10.1007/s10933-008-9193-7}{\detokenize{10.1007/s10933-008-9193-7}}}.
 
+\bibitem[Liland \em{et~al.}(2021)Liland, Mevik, and Wehrens]{R-pls}
+Liland, K.H.; Mevik, B.H.; Wehrens, R.
+\newblock {\em pls: Partial Least Squares and Principal Component Regression},
+  2021.
+\newblock R package version 2.8-0.
+
 \bibitem[Ros{\'e}n \em{et~al.}(2011)Ros{\'e}n, Vogel, Cunningham, Hahn,
   Hausmann, Pienitz, Zolitschka, Wagner, and Persson]{rosen2011universally}
 Ros{\'e}n, P.; Vogel, H.; Cunningham, L.; Hahn, A.; Hausmann, S.; Pienitz, R.;
