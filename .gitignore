@@ -3,3 +3,12 @@
 .RData
 .Ruserdata
 .DS_Store
+
+# LaTex Trash Files
+paper_files/final_paper_draft/final_paper_draft.aux
+paper_files/final_paper_draft/final_paper_draft.bbl
+paper_files/final_paper_draft/final_paper_draft.blg
+paper_files/final_paper_draft/final_paper_draft.html
+paper_files/final_paper_draft/final_paper_draft.log
+paper_files/final_paper_draft/final_paper_draft.out
+paper_files/final_paper_draft/final_paper_draft.tex
