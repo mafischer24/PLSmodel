@@ -1,8 +1,23 @@
 library(shiny)
 library(ggplot2)
 library(pls)
+library(plsr)
+# need to change this load when change name of package
 
-<<<<<<< HEAD
+## Static objects
+## loading our data
+greenland_df <- read_ftirs("Samples/greenland_csv",
+                           "csvFiles/wet-chem-data.csv",
+                           format = "wide") %>%
+              select(-1883)
+alaska_df <- read_ftirs("Samples/alaska_csv",
+                        "csvFiles/AlaskaWetChem.csv",
+                        format = "wide") %>%
+  # this is missing one BSi value?
+  select(-1883)
+
+combined_artic_df <- rbind(greenland_df, alaska_df)
+
 intro_panel <- tabPanel(
   "About",
   titlePanel("Learn about our model"),
@@ -33,7 +48,7 @@ ui <- navbarPage(
 
 server <- function(input, output, session) {
   output$files <- renderTable(input$upload)
-=======
+
 # Need to attach our df
 #replace this line with the functions eventually (or the attached
 # dataset!)
@@ -65,7 +80,7 @@ server <- function(input, output, session){
   output$summary <- renderPrint({
     summary(pls_data())
   })
->>>>>>> 9237b96d038b451a120f15e067de68cddf7a9714
+
 }
 
 shinyApp(ui, server)
