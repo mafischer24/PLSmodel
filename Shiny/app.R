@@ -19,7 +19,7 @@ alaska_df <- read_ftirs(here::here("Samples/alaska_csv"),
 
 combined_artic_df_wide <- rbind(greenland_df, alaska_df) %>%
   pivot_ftirs_wider()%>%
-  select(-1884)
+  select(-1883)
 
 ## Defining our different panels
 ## clever and keeps ui clean, but can be potentially confusing about what
