@@ -1,26 +1,28 @@
 library(shiny)
 library(ggplot2)
 library(pls)
-library(plsr)
 library(dplyr)
 library(readr)
+
+library(plsr)
 # need to change this load when change name of package
 
-# ## Static objects
-# ## loading our data
-# greenland_df <- read_ftirs("Samples/greenland_csv",
-#   "csvFiles/wet-chem-data.csv",
-#   format = "wide"
-# ) %>%
-#   select(-1883)
-# alaska_df <- read_ftirs("Samples/alaska_csv",
-#   "csvFiles/AlaskaWetChem.csv",
-#   format = "wide"
-# ) %>%
-#   # this is missing one BSi value?
-#   select(-1883)
-#
-# combined_artic_df <- rbind(greenland_df, alaska_df)
+## Static objects
+## loading our data
+
+greenland_df <- read_ftirs(here::here("Samples/greenland_csv"),
+  here::here("csvFiles/wet-chem-data.csv"),
+  format = "wide"
+) %>%
+  select(-1883)
+alaska_df <- read_ftirs(here::here("Samples/alaska_csv"),
+  here::here("csvFiles/AlaskaWetChem.csv"),
+  format = "wide"
+) %>%
+  # this is missing one BSi value?
+  select(-1883)
+
+combined_artic_df <- rbind(greenland_df, alaska_df)
 
 
 ## Defining our different panels
@@ -55,7 +57,7 @@ rmsep_plot <- mainPanel(
 # create the user interface
 ui <- navbarPage(
   "BSi Predictive Modeling",
- about_panel,
+  about_panel,
   use_mod_panel
 )
 
@@ -67,14 +69,11 @@ server <- function(input, output, session) {
     req(file)
     validate(need(ext == "csv", "Please upload a csv file"))
     read_csv(file$datapath)
-
   })
 
   output$summary <- renderPrint({
     summary(pls_data())
   })
-
-
 }
 
 shinyApp(ui, server)
