@@ -11,19 +11,15 @@ library(plsr)
 ## loading our data
 
 greenland_df <- read_ftirs(here::here("Samples/greenland_csv"),
-  here::here("csvFiles/wet-chem-data.csv"),
-  format = "wide"
-) %>%
-  select(-1883)
+  here::here("csvFiles/wet-chem-data.csv")
+)
 alaska_df <- read_ftirs(here::here("Samples/alaska_csv"),
-  here::here("csvFiles/AlaskaWetChem.csv"),
-  format = "wide"
-) %>%
-  # this is missing one BSi value?
-  select(-1883)
+  here::here("csvFiles/AlaskaWetChem.csv")
+)  # this is missing one BSi value?
 
-combined_artic_df <- rbind(greenland_df, alaska_df)
-
+combined_artic_df_wide <- rbind(greenland_df, alaska_df) %>%
+  pivot_ftirs_wider()%>%
+  select(-1884)
 
 ## Defining our different panels
 ## clever and keeps ui clean, but can be potentially confusing about what
