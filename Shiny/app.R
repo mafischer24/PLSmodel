@@ -1,57 +1,65 @@
 library(shiny)
 library(ggplot2)
 library(pls)
+library(dplyr)
+library(readr)
 
-<<<<<<< HEAD
-intro_panel <- tabPanel(
-  "About",
-  titlePanel("Learn about our model"),
-  img(src = "~/Desktop/PLSmodel/paper_files/final_paper_draft/fig1.png"),
-  p("we predict BSi and TOC content from FTIRS data")
+library(plsr)
+# need to change this load when change name of package
+
+## Static objects
+## loading our data
+
+greenland_df <- read_ftirs(here::here("Samples/greenland_csv"),
+  here::here("csvFiles/wet-chem-data.csv")
 )
+alaska_df <- read_ftirs(here::here("Samples/alaska_csv"),
+  here::here("csvFiles/AlaskaWetChem.csv")
+)  # this is missing one BSi value?
 
+combined_artic_df_wide <- rbind(greenland_df, alaska_df) %>%
+  pivot_ftirs_wider()%>%
+  select(-1883)
+
+## Defining our different panels
+## clever and keeps ui clean, but can be potentially confusing about what
+## needs to be included so we should be mindful
+about_panel <-
+  tabPanel(
+    "About",
+    titlePanel("Learn about our model"),
+    img(src = "fig_shiny.png"),
+    p("We predict BSi and TOC content from FTIRS data")
+  )
+
+# Do we want these locations?
 locations <- c("Alaska", "Greenland", "Arctic (AK+GL)")
 
-second_panel <- tabPanel(
-  "use Model",
+use_mod_panel <- tabPanel(
+  "Use Model",
   titlePanel("upload your data"),
-  selectInput("dataset", label ="what is your location?", choices = locations ),
-  fileInput("upload", "Upload a file"),
+  selectInput("dataset", label = "What is your location?", choices = locations),
+  ## What do we want to accept? Think we want to accept
+  ## pathway to directory?
+  fileInput("upload", "Upload a file", accept = ".csv"),
   tableOutput("files")
-
 )
 
+# this plot isn't being rendered to output atm
 rmsep_plot <- mainPanel(
   plotOutput("plot")
 )
 
-ui <- navbarPage(
-  "BSi Predictive Model",
-  intro_panel,
-  second_panel
-)
-
-server <- function(input, output, session) {
-  output$files <- renderTable(input$upload)
-=======
-# Need to attach our df
-#replace this line with the functions eventually (or the attached
-# dataset!)
-
-
 # create the user interface
-ui <- fluidPage(
-  "This is our PLS Shiny App",
-  selectInput("whichdatachoose",
-              "Which datasets would you like to use as calibration data?",
-              whichdata, multiple = TRUE),
-  fileInput("upload", "Select your FTIRS dataset", accept = ".csv"),
-  tableOutput("contents")
+ui <- navbarPage(
+  "BSi Predictive Modeling",
+  about_panel,
+  use_mod_panel
 )
 
 # define the behavior of app
-server <- function(input, output, session){
-  output$contents <- renderTable({
+server <- function(input, output, session) {
+  output$files <- renderTable({
     file <- input$upload
     ext <- tools::file_ext(file$datapath)
     req(file)
@@ -59,13 +67,9 @@ server <- function(input, output, session){
     read_csv(file$datapath)
   })
 
-  pls_data <- reactive({
-    source('R/compiled_data_load.R')
-  })
   output$summary <- renderPrint({
     summary(pls_data())
   })
->>>>>>> 9237b96d038b451a120f15e067de68cddf7a9714
 }
 
 shinyApp(ui, server)
