@@ -47,9 +47,9 @@ use_mod_panel <- tabPanel(
   selectInput("dataset", label = "What is your location?", choices = locations),
   ## What do we want to accept? Think we want to accept
   ## pathway to directory?
-  #fileInput("upload", "Upload a file", accept = ".csv"),
-  tableOutput("files"),
-  shinyDirButton('directory_select', 'Select a directory', title='Select a directory')
+  ##fileInput("upload", "Upload a file", accept = ".csv"),
+  shinyDirButton('directory_select', 'Select a directory', title='Select a directory'),
+  tableOutput("files")
 )
 
 # this plot isn't being rendered to output atm
@@ -82,10 +82,23 @@ server <- function(input, output, session) {
                session=session)
   dirname <- reactive({parseDirPath(volumes, input$directory_select)})
 
+#  df <- reactive({read_ftirs(dirname())})
+
+  output$files <- renderTable({
+   # as.character(dirname())
+
+    #as.data.frame(read_csv(paste(dirname(), "/FISK-10.0.csv", sep = "")))
+    x <- read_ftirs(dirname())
+    head(x)
+
+
+  }
+  )
   # output$dirname <- renderText({
   #    parseDirPath(c(home = "~"), dirname())
   #  })
   observe({print(dirname())})
+  #observe({print(df)})
 
 
 
