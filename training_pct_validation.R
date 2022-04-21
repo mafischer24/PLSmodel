@@ -15,7 +15,7 @@ predictions_comb <- as.data.frame(predict(combined_PLS, combined_df%>%select(-1)
 
 # Three dimensional array: Iteration, Percent, and Components mse
 full_list <- array(dim = c(10,10,10))
-
+full_list_t <- array(dim = c(10,10,10))
 
 # For each iteration
 for (i in 1:10) {
@@ -38,9 +38,11 @@ for (i in 1:10) {
     for(n in 1:10) {
       # Calculate MSE against the test set
       rmse <- sqrt(mse(as.numeric(predictions[,n]), testing$BSi))
+      test_rmse <- sqrt(mse(as.numeric(predictions[,n]), training$BSi))
 
       #add it to its spot
       full_list[i,perc,n] <- rmse
+      full_list_t[i,perc,n] <- test_rmse
     }
   }
   # Progress indicator so I don't go insane
@@ -49,17 +51,31 @@ for (i in 1:10) {
 
 # Now, for calculations! We want to end up with a 2d data frame, with column being a percentage and each row being a number of comps
 vecs_list <- array(dim = c(10,10))
+vecs_list_t <- array(dim = c(10,10))
 # For each percentage
 for(i in 1:10){
   vecs_list[i,] <- colMeans(full_list[,i,])
+  vecs_list_t[i,] <- colMeans(full_list_t[,i,])
 }
 
 mses_by_perc <- as.data.frame(vecs_list) %>%
-  cbind.data.frame(1:10)
-colnames(mses_by_perc) <- c("p_010","p_020",'p_030','p_040','p_050','p_060','p_070','p_080','p_090','p_100','ncomps')
+  cbind.data.frame(1:10) %>%
+  mutate(subset = "Testing")
 
-plot_df <- mses_by_perc %>%
-  pivot_longer(cols = p_010:p_100, names_to = "percent") %>%
+mses_by_perc_training <- as.data.frame(vecs_list_t) %>%
+  cbind.data.frame(1:10) %>%
+  mutate(subset = "Training")
+
+mses_by_perc_all <- rbind(mses_by_perc, mses_by_perc_training)
+
+colnames(mses_by_perc_all) <- c("p_010","p_020",'p_030','p_040','p_050','p_060',
+                            'p_070','p_080','p_090','p_100','ncomps', 'subset')
+
+mses_by_perc_all <- mses_by_perc_all %>%
+  select(ncomps, everything(), -p_100)
+
+plot_df <- mses_by_perc_all %>%
+  pivot_longer(cols = p_010:p_090, names_to = "percent") %>%
   mutate(percent = case_when(percent == "p_010" ~ "10%",
                              percent == "p_020" ~ "20%",
                              percent == "p_030" ~ "30%",
@@ -68,10 +84,10 @@ plot_df <- mses_by_perc %>%
                              percent == "p_060" ~ "60%",
                              percent == "p_070" ~ "70%",
                              percent == "p_080" ~ "80%",
-                             percent == "p_090" ~ "90%",
-                             percent == "p_100" ~ "Full",))
+                             percent == "p_090" ~ "90%",))
 
-rmsemp_comp <- ggplot(plot_df, aes(x = ncomps, y = value, color = percent)) + geom_line() +
+rmsemp_comp <- ggplot(plot_df, aes(x = ncomps, y = value, color = percent)) +
+  geom_line(aes(linetype=subset)) +
   scale_color_brewer(palette = "RdYlBu") + theme_bw() +
   xlab("Number of Components") +
   ylab("RMSE Value") +
