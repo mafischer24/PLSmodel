@@ -49,7 +49,8 @@ use_mod_panel <- tabPanel(
   ## pathway to directory?
   ##fileInput("upload", "Upload a file", accept = ".csv"),
   shinyDirButton('directory_select', 'Select a directory', title='Select a directory'),
-  tableOutput("files")
+  tableOutput("files"),
+  tableOutput("predictions")
 )
 
 # this plot isn't being rendered to output atm
@@ -94,6 +95,16 @@ server <- function(input, output, session) {
 
   }
   )
+
+  output$predictions <- renderTable({
+    # there should be a less redundant way that doesn't
+    # include calling the df again
+    x <- read_ftirs(dirname())
+    pred_x <- x %>%
+    predict_ftirs(x)
+    head(pred_x)
+  })
+
   # output$dirname <- renderText({
   #    parseDirPath(c(home = "~"), dirname())
   #  })
