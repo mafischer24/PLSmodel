@@ -4,8 +4,8 @@ library(pls)
 library(dplyr)
 library(readr)
 library(shinyFiles)
-
 library(plsr)
+
 # need to change this load when change name of package
 
 ## Static objects
@@ -39,7 +39,7 @@ about_panel <-
   )
 
 # Do we want these locations?
-locations <- c("Alaska", "Greenland", "Arctic (AK+GL)")
+locations <- c("Alaska  (AK)", "Greenland (GL)", "Arctic (AK+GL)")
 
 use_mod_panel <- tabPanel(
   "Use Model",
@@ -50,7 +50,8 @@ use_mod_panel <- tabPanel(
   ##fileInput("upload", "Upload a file", accept = ".csv"),
   shinyDirButton('directory_select', 'Select a directory', title='Select a directory'),
   tableOutput("files"),
-  tableOutput("predictions")
+  tableOutput("predictions"),
+  downloadButton("download")
 )
 
 # this plot isn't being rendered to output atm
@@ -92,7 +93,6 @@ server <- function(input, output, session) {
     x <- read_ftirs(dirname())
     head(x)
 
-
   }
   )
 
@@ -110,8 +110,6 @@ server <- function(input, output, session) {
   #  })
   observe({print(dirname())})
   #observe({print(df)})
-
-
 
 }
 
