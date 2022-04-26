@@ -22,7 +22,7 @@ for (i in 1:10) {
   # For each percentage
   for(perc in 1:10) {
     percent <- .10*perc
-    if(percent != 1) {
+    if(percent < 1) {
       training <- gl_ak_df %>%
         sample_frac(percent)
 
@@ -34,11 +34,12 @@ for (i in 1:10) {
     }
     model <- plsr(BSi~., ncomp = 10, data = training, validation = "CV", segments = 10)
     predictions <- as.data.frame(predict(model, testing%>%select(-1)))
+    predictions_t <- as.data.frame(predict(model, training %>%select(-1)))
     # For each n component in the model
     for(n in 1:10) {
       # Calculate MSE against the test set
       rmse <- sqrt(mse(as.numeric(predictions[,n]), testing$BSi))
-      test_rmse <- sqrt(mse(as.numeric(predictions[,n]), training$BSi))
+      test_rmse <- sqrt(mse(as.numeric(predictions_t[,n]), training$BSi))
 
       #add it to its spot
       full_list[i,perc,n] <- rmse
@@ -68,25 +69,18 @@ mses_by_perc_training <- as.data.frame(vecs_list_t) %>%
 
 mses_by_perc_all <- rbind(mses_by_perc, mses_by_perc_training)
 
-colnames(mses_by_perc_all) <- c("p_010","p_020",'p_030','p_040','p_050','p_060',
-                            'p_070','p_080','p_090','p_100','ncomps', 'subset')
+colnames(mses_by_perc_all) <- c("1","2",'3','4','5','6',
+                            '7','8','9','10','percent', 'subset')
 
 mses_by_perc_all <- mses_by_perc_all %>%
-  select(ncomps, everything(), -p_100)
+  select(percent, everything()) %>%
+  filter(percent != 10)
 
 plot_df <- mses_by_perc_all %>%
-  pivot_longer(cols = p_010:p_090, names_to = "percent") %>%
-  mutate(percent = case_when(percent == "p_010" ~ "10%",
-                             percent == "p_020" ~ "20%",
-                             percent == "p_030" ~ "30%",
-                             percent == "p_040" ~ "40%",
-                             percent == "p_050" ~ "50%",
-                             percent == "p_060" ~ "60%",
-                             percent == "p_070" ~ "70%",
-                             percent == "p_080" ~ "80%",
-                             percent == "p_090" ~ "90%",))
+  pivot_longer(cols = 2:11, names_to = "ncomps") %>%
+  mutate(percent = 10 * percent)
 
-rmsemp_comp <- ggplot(plot_df, aes(x = ncomps, y = value, color = percent)) +
+rmsemp_comp <- ggplot(plot_df, aes(x = as.numeric(ncomps), y = value, color = as.factor(percent))) +
   geom_line(aes(linetype=subset)) +
   scale_color_brewer(palette = "RdYlBu") + theme_bw() +
   xlab("Number of Components") +
@@ -96,3 +90,4 @@ rmsemp_comp <- ggplot(plot_df, aes(x = ncomps, y = value, color = percent)) +
   scale_x_continuous(breaks = c(1,2,3,4,5,6,7,8,9,10))+
   scale_color_viridis_d()
 
+rmsemp_comp
