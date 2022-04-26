@@ -4,7 +4,8 @@ library(pls)
 library(dplyr)
 library(readr)
 library(shinyFiles)
-library(plsr)
+library(ftirsr)
+
 
 # need to change this load when change name of package
 
@@ -90,7 +91,7 @@ server <- function(input, output, session) {
    # as.character(dirname())
 
     #as.data.frame(read_csv(paste(dirname(), "/FISK-10.0.csv", sep = "")))
-    x <- read_ftirs(dirname())
+    x <- suppressWarnings(read_ftirs(dirname()))
     head(x)
 
   }
@@ -99,9 +100,11 @@ server <- function(input, output, session) {
   output$predictions <- renderTable({
     # there should be a less redundant way that doesn't
     # include calling the df again
-    x <- read_ftirs(dirname())
-    pred_x <- x %>%
-    predict_ftirs(x)
+    x <- suppressWarnings(read_ftirs(dirname(), format= "wide"))
+    #pred_x <- x %>%
+    #predict.ftirs(x)
+    pred_x <- predict(dummy_model, x)
+
     head(pred_x)
   })
 
