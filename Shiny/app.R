@@ -103,7 +103,7 @@ server <- function(input, output, session) {
     x <- suppressWarnings(read_ftirs(dirname(), format= "wide"))
     #pred_x <- x %>%
     #predict.ftirs(x)
-    pred_x <- predict(dummy_model, x)
+    pred_x <- predict( x)
 
     head(pred_x)
   })
