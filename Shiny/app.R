@@ -79,16 +79,16 @@ server <- function(input, output, session) {
 
   volumes <-  c(home = "~")
 
-      #getVolumes()
+  #getVolumes()
   shinyDirChoose(input, 'directory_select', roots = volumes,
-               filetypes = c("csv"),
-               session=session)
+                 filetypes = c("csv"),
+                 session=session)
   dirname <- reactive({parseDirPath(volumes, input$directory_select)})
 
-#  df <- reactive({read_ftirs(dirname())})
+  #  df <- reactive({read_ftirs(dirname())})
 
   output$files <- renderTable({
-   # as.character(dirname())
+    # as.character(dirname())
 
     #as.data.frame(read_csv(paste(dirname(), "/FISK-10.0.csv", sep = "")))
     x <- suppressWarnings(read_ftirs(dirname()))
