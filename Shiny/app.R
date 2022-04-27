@@ -101,7 +101,7 @@ server <- function(input, output, session) {
     # include calling the df again
     x <- read_ftirs(dirname())
     pred_x <- x %>%
-    predict_ftirs(x)
+    predict(x)
     head(pred_x)
   })
 
