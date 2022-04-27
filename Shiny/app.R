@@ -4,8 +4,9 @@ library(pls)
 library(dplyr)
 library(readr)
 library(shinyFiles)
+library(ftirsr)
 
-library(plsr)
+
 # need to change this load when change name of package
 
 ## Static objects
@@ -39,7 +40,7 @@ about_panel <-
   )
 
 # Do we want these locations?
-locations <- c("Alaska", "Greenland", "Arctic (AK+GL)")
+locations <- c("Alaska  (AK)", "Greenland (GL)", "Arctic (AK+GL)")
 
 use_mod_panel <- tabPanel(
   "Use Model",
@@ -50,7 +51,8 @@ use_mod_panel <- tabPanel(
   ##fileInput("upload", "Upload a file", accept = ".csv"),
   shinyDirButton('directory_select', 'Select a directory', title='Select a directory'),
   tableOutput("files"),
-  tableOutput("predictions")
+  tableOutput("predictions"),
+  downloadButton("download")
 )
 
 # this plot isn't being rendered to output atm
@@ -77,21 +79,20 @@ server <- function(input, output, session) {
 
   volumes <-  c(home = "~")
 
-      #getVolumes()
+  #getVolumes()
   shinyDirChoose(input, 'directory_select', roots = volumes,
-               filetypes = c("csv"),
-               session=session)
+                 filetypes = c("csv"),
+                 session=session)
   dirname <- reactive({parseDirPath(volumes, input$directory_select)})
 
-#  df <- reactive({read_ftirs(dirname())})
+  #  df <- reactive({read_ftirs(dirname())})
 
   output$files <- renderTable({
-   # as.character(dirname())
+    # as.character(dirname())
 
     #as.data.frame(read_csv(paste(dirname(), "/FISK-10.0.csv", sep = "")))
-    x <- read_ftirs(dirname())
+    x <- suppressWarnings(read_ftirs(dirname()))
     head(x)
-
 
   }
   )
@@ -99,9 +100,11 @@ server <- function(input, output, session) {
   output$predictions <- renderTable({
     # there should be a less redundant way that doesn't
     # include calling the df again
-    x <- read_ftirs(dirname())
-    pred_x <- x %>%
-    predict(x)
+    x <- suppressWarnings(read_ftirs(dirname(), format= "wide"))
+    #pred_x <- x %>%
+    #predict.ftirs(x)
+    pred_x <- predict( x)
+
     head(pred_x)
   })
 
@@ -110,8 +113,6 @@ server <- function(input, output, session) {
   #  })
   observe({print(dirname())})
   #observe({print(df)})
-
-
 
 }
 
