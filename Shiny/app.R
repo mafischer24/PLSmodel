@@ -105,10 +105,21 @@ server <- function(input, output, session) {
     x <- suppressWarnings(read_ftirs(dirname(), format= "wide"))
     #pred_x <- x %>%
     #predict.ftirs(x)
-    pred_x <- predict( x)
+    pred_x <<- predict( x)
 
     head(pred_x)
   })
+
+  datasetInput <- reactive(pred_x)
+
+  output$download <- downloadHandler(
+    filename = function() {
+      paste0(input$pred_x, ".csv")
+    },
+    content = function(file) {
+      write.csv( datasetInput(), file)
+    }
+  )
 
   # output$dirname <- renderText({
   #    parseDirPath(c(home = "~"), dirname())
