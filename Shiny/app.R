@@ -35,7 +35,7 @@ about_panel <-
   tabPanel(
     "About",
     titlePanel("Learn about our model"),
-    img(src = "fig_shiny.png")#,
+    img(src = "www/fig_shiny.png")#,
    # p("We predict BSi and TOC content from FTIRS data")
   )
 
