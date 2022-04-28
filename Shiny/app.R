@@ -35,16 +35,18 @@ about_panel <-
   tabPanel(
     "About",
     titlePanel("Learn about our model"),
-    img(src = "fig_shiny.png"),
-    p("We predict BSi and TOC content from FTIRS data")
+    img(src = "www/fig_shiny.png")#,
+   # p("We predict BSi and TOC content from FTIRS data")
   )
+
+
 
 # Do we want these locations?
 locations <- c("Alaska  (AK)", "Greenland (GL)", "Arctic (AK+GL)")
 
 use_mod_panel <- tabPanel(
-  "Use Model",
-  titlePanel("upload your data"),
+  "Predict Using Our Model",
+  titlePanel("Upload your data"),
   selectInput("dataset", label = "What is your location?", choices = locations),
   ## What do we want to accept? Think we want to accept
   ## pathway to directory?
