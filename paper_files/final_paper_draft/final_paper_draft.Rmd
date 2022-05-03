@@ -164,7 +164,7 @@ scores_df %>%
 Once we have the most appropriate model, we must choose how many principal components to include within the model. Principal components refer to latent variables that the algorithm predicts within the model to use for prediction of the desired outcome variable (pls package citation). Including too few principal components will not provide enough predictive power, but too many risks an overly complex or overfitted model. We look at a plot (figure \ref{fig:fig4}) of RMSEP values for each potential number of components (n = 10), and find that using 10 components creates a model with the lowest RMSEP. Despite the high number of components, our model does not appear to overfit our data because it accurately generalizes to new data that was not included in the training data. Overall, our final model can be represented as: $BSi = x_1 + x_2 + . . . + x_{1882} + b$ where the $x_n$ variables are the individual wavenumbers and $b$ is the intercept. 
 
 ```{r, echo = FALSE, message = FALSE, include = FALSE}
-source("training_pct_validation.R")
+source("R/training_pct_validation.R")
 ```
 
 ```{r fig4, echo = FALSE,  fig.align='center', fig.cap = "The Root Mean Square Error of Prediction (RMSEP) was calculated against new data for each component. Ten random samples were taken of the data for each percentage, and the model trained on that sample was then tested against the remaining data for each component, with the values shown above being the mean of the ten iterations for each combination, to limit the variation inherent in sampling. Based on this, we chose the model with 10 components as our final model."}

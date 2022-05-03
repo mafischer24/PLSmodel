@@ -7,6 +7,7 @@ library(ggpubr)
 library(janitor)
 library(gbm)
 library(purrr)
+library(tibble)
 set.seed(1)
 
 source('R/compiled_data_load.R')
@@ -46,7 +47,7 @@ fig1 <- ggplot() +
                            y= absorbance, color = "Diatoms With High BSi and TOC")) +
   xlim(4000, 300)+
   ylab("Absorbance") +
-  xlab(expression(paste("Wavenumber ", cm^{-1}))) +
+  xlab(expression(paste("Wavenumber (", cm^{-1}, ")"))) +
   geom_rect(inherit.aes=FALSE, aes(xmin=start, xmax=end, ymin= - Inf, ymax=Inf, fill= "BSi Range"),
             color="transparent", alpha=0.3) +
   geom_rect(inherit.aes=FALSE, aes(xmin=2800, xmax=3000, ymin= - Inf, ymax=Inf, fill= "TOC Range"),
@@ -438,7 +439,7 @@ fig1 <- ggplot() +
 # }
 
 #figure 11
-region <- c(rep("Greenland", 28), rep("Alaska", 103))
+region <- c(rep("Greenland (28)", 28), rep("Alaska (103)", 103))
 
 all_data <- gl_ak_combined_df %>%
   mutate(region = region) %>%
@@ -455,7 +456,7 @@ fig11 <- ggplot(all_data, aes(x = Wavenumber, y= Absorbance,
   facet_wrap(~region) +
   scale_color_continuous(type = "viridis")+
   theme_bw()+
-  xlab(expression(paste("Wavenumber ", cm^{-1})))
+  xlab(expression(paste("Wavenumber (", cm^{-1}, ")")))
 
 
 #fig 12
@@ -469,13 +470,13 @@ post_interp <- greenland_df[c("FISK-10.0"),] %>%
   mutate(wavenumber = as.numeric(wavenumber), status = "After")
 
 fisk <- rbind(pre_interp, post_interp)
-
+fisk$status <- factor(fisk$status, levels = c("Before", "After"))
 
 fig12 <- ggplot(fisk, aes(x = wavenumber, y = absorbance))+
   geom_point() +
-  facet_wrap(~status)+
+  facet_wrap(~status, ncol = 1)+
   ylab("Absorbance") +
-  xlab(expression(paste("Wavenumber ", cm^{-1}))) +
+  xlab(expression(paste("Wavenumber (", cm^{-1}, ")"))) +
   annotate(geom = "rect", xmin=4000, xmax=Inf, ymin= - Inf, ymax=Inf,
            fill = "red", alpha = 0.1)+
   annotate(geom = "rect", xmin=-Inf, xmax=368.3862, ymin= - Inf, ymax=Inf,
