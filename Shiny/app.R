@@ -102,7 +102,7 @@ server <- function(input, output, session) {
   output$predictions <- renderTable({
     # there should be a less redundant way that doesn't
     # include calling the df again
-    x <- suppressWarnings(read_ftirs(dirname(), format= "wide"))
+    x <- suppressWarnings(read_ftirs(dirname(),format= "wide"))
     #pred_x <- x %>%
     #predict.ftirs(x)
     pred_x <<- predict( x)
