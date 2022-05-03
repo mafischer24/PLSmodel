@@ -12,3 +12,12 @@ paper_files/final_paper_draft/final_paper_draft.html
 paper_files/final_paper_draft/final_paper_draft.log
 paper_files/final_paper_draft/final_paper_draft.out
 paper_files/final_paper_draft/final_paper_draft.tex
+
+# Or here, the better way:
+
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.tex
