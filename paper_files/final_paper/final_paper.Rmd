@@ -169,16 +169,16 @@ scores_df %>%
 Once we have the most appropriate model, we must choose how many principal components to include within the model. Principal components refer to latent variables that the algorithm predicts within the model to use for prediction of the desired outcome variable [@R-pls]. Including too few principal components will not provide enough predictive power, but too many risks an overly complex or overfitted model. We look at a plot (Figure \ref{fig:fig4}) of RMSEP values for each potential number of components (n = 10), and find that using 5 components creates a model with the lowest RMSEP. The model does not appear to overfit our data because the cross-validated error remains small as components are added. Overall, our final model can be represented as: $$BSi = \beta_0 + \beta_1x_1 + x_2 + \cdots + \beta_{1882}x_{1882} + \varepsilon$$ where the $x_n$ variables are the individual wavenumbers, $\beta_0$ is the intercept, and $\varepsilon = N(0, \sigma_{\varepsilon})$ for some fixed $\sigma_{\varepsilon}$. 
 
 ```{r, echo = FALSE, message = FALSE, include = FALSE}
-source("training_pct_validation.R")
+source("R/training_pct_validation.R")
 ```
 
 ```{r fig4, echo = FALSE,  fig.align='center', fig.cap = "The Root Mean Square Error of Prediction (RMSEP) was calculated against new data for each component. Ten random samples were taken of the data for each percentage, and the model trained on that sample was then tested against the remaining data for each component, with the values shown above being the mean of the ten iterations for each combination, to limit the variation inherent in sampling. Based on this, we chose the model with 10 components as our final model."}
 rmsemp_comp
 ```
-With our model and number of principal components in place, our model is ready to predict percent BSi from FTIR Spectroscopy Data. To facilitate this, we create an app \ref{fig:fig5} using R Shiny [@R-Shiny]. The convenient and accessible interface allows users to select a directory on their local computer that contains the FTIR Spectroscopy data for their samples. The predicted percent BSi in each sample, estimated by our Full Spectrum model, is outputted to the screen, with an option to download these values.
+With our model and number of principal components in place, our model is ready to predict percent BSi from FTIR Spectroscopy Data. To facilitate this, we create an app (Figure \ref{fig:fig5}) using R Shiny (@R-Shiny). The convenient and accessible interface allows users to select a directory on their local computer that contains the FTIR Spectroscopy data for their samples. The predicted percent BSi in each sample, estimated by our Full Spectrum model, is outputted to the screen, with an option to download these values.
 
-```{r fig5, echo = FALSE,  fig.cap = "Our interface, created using R Shiny makes it easy for users to predict BSi composition from their FTIR Spectroscopy data using our Full Spectrum Model", fig.align='center', out.width="50%"}
-#knitr::include_graphics("paper_files/final_paper/shiny_example.png")
+```{r fig5, echo = FALSE,  fig.cap = "Our interface, created using R Shiny makes it easy for users to predict BSi composition from their FTIR Spectroscopy data using our Full Spectrum Model", fig.align='center', out.width = "50%"}
+knitr::include_graphics(here::here("paper_files/final_paper/shiny_example.png"), error = FALSE)
 ```
 
 
