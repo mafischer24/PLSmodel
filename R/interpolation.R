@@ -33,12 +33,14 @@ interpolate_greenland <- function(x) {
   filelist <- lapply(filelist, function(x){dplyr::select(x, wavenumber, absorbance)})
 
   # Getting the Alaska wavenumbers: (They're all the same across all AK samples. Yes, I checked.)
-  AK_wav <- read_csv("Samples/alaska_csv/AS-01\ (8_24_16).0.csv")
-  ak_wavenumbers <- AK_wav$wavenumber
+  # LW_wav<- read_csv("Samples/alaska_csv/AS-01\ (8_24_16).0.csv")
+  # ak_wavenumbers <- AK_wav$wavenumber
+  LW_wav <- read_csv("Samples/LW_csv/LW A-21 D1 5-6cm.1.csv/")
+  lw_wavenumbers <- LW_wav$wavenumber
 
   # Running the interpolation function on each individual vector in the file frame.
   # Note: Interpolation does not care if it's a char vec or not, I used as.numeric() everywhere that matters.
-  interpolated_greenland <- lapply(filelist, function(x){interpolate(x$wavenumber, x$absorbance, ak_wavenumbers)})
+  interpolated_greenland <- lapply(filelist, function(x){interpolate(x$wavenumber, x$absorbance, lw_wavenumbers)})
 
   # Selecting only the absorbance vector from each list; interpolation returns a df of both abs and wavenumber
   interp_gl <- lapply(interpolated_greenland, function(x){dplyr::select(x,absorbance)})
@@ -50,7 +52,7 @@ interpolate_greenland <- function(x) {
   names(interp_df) <- names(filelist)
 
   # Adding the wavenumbers back in as their own column
-  interp_df$wavenumber <- ak_wavenumbers
+  interp_df$wavenumber <- lw_wavenumbers
 
   # This one's a bit messy, so I'll be better about explaining.
   interp_df_wider <- interp_df %>%

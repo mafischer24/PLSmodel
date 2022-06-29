@@ -61,7 +61,7 @@ generate_alaska <- function(){
 
   colnames(absorbance_df) <- ak_wavenumbers
 
-  alaska_wet_chem <- read_csv("Maxwell-Alaska Samples  - Final Top 100.csv") %>%
+  alaska_wet_chem <- read_csv("csvFiles/Maxwell-Alaska Samples  - Final Top 100.csv") %>%
     janitor::clean_names() %>%
     dplyr::select(-notes, -toc_percent)
 
@@ -85,3 +85,5 @@ generate_alaska <- function(){
 alaska_df <- generate_alaska()
 # Dataframe with both Greenland and Alaska samples ready for model
 gl_ak_combined_df <- rbind(greenland_df, alaska_df)
+
+gl_ak_combined_df <- gl_ak_combined_df[-(2:146)]
